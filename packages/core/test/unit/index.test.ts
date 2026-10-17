@@ -19,6 +19,7 @@ describe("public API", () => {
       "personalInflation",
       "realWageChange",
       "roundTo",
+      "toIndexSet",
       "twelveMonthAverage",
       "yearToDate",
     ]);

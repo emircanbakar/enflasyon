@@ -20,6 +20,7 @@ export type { EnflasyonErrorCode } from "./errors.js";
 
 export { addMonths, availablePeriods, isPeriod } from "./series/period.js";
 export { chainSeries } from "./series/chain.js";
+export { toIndexSet } from "./series/indexSet.js";
 
 export { normalizeBasket } from "./basket/normalize.js";
 
