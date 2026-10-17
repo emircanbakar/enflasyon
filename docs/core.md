@@ -292,26 +292,30 @@ k = \frac{I^{yeni}_{t_0}}{I^{eski}_{t_0}} \qquad I^{zincir}_t = k \cdot I^{eski}
 
 ## 5. Public API
 
-Public yüzey küçük tutulur: aşağıdaki tablodaki 15 fonksiyon, 1 hata sınıfı ve tipler. `src/index.ts` dışında hiçbir şey dışa açılmaz; `internal/` asla export edilmez.
+Public yüzey küçük tutulur: aşağıdaki tablodaki 16 fonksiyon, 1 hata sınıfı ve tipler. `src/index.ts` dışında hiçbir şey dışa açılmaz; `internal/` asla export edilmez.
 
-| Fonksiyon                        | İmza (özet)                                                                                             | Döner                                                       |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `normalizeBasket`                | `(basket: Basket) => Weights`                                                                           | Toplamı 1 olan paylar                                       |
-| `itemChange`                     | `(series: IndexSeries, from: Period, to: Period) => number`                                             | Oran                                                        |
-| `personalInflation`              | `(input: PersonalInflationInput) => PersonalInflationResult`                                            | Oran + katkılar                                             |
-| `annual`                         | `(input: Omit<PersonalInflationInput, "from" \| "to"> & { at: Period }) => PersonalInflationResult`     | Yıllık                                                      |
-| `monthly`                        | aynı, `at` ile                                                                                          | Aylık                                                       |
-| `yearToDate`                     | aynı, `at` ile                                                                                          | Yılbaşından beri                                            |
-| `twelveMonthAverage`             | aynı, `at` ile                                                                                          | 12 aylık ortalama                                           |
-| `adjustAmount`                   | `(amount: number, rate: number) => number`                                                              | Bugünkü tutar                                               |
-| `realWageChange`                 | `(input: { wageFrom: number; wageTo: number; rate: number }) => { real: number; requiredWage: number }` | Reel değişim                                                |
-| `chainSeries`                    | `(older: IndexSeries, newer: IndexSeries, overlap: Period) => IndexSeries`                              | Zincirlenmiş seri                                           |
-| `addMonths` / `availablePeriods` | Yardımcı dönem fonksiyonları                                                                            | `Period` / `Period[]`                                       |
-| `roundTo`                        | `(value: number, decimals: number) => number`                                                           | Yuvarlanmış sayı (Bölüm 6)                                  |
-| `toIndexSet`                     | `(data: unknown) => IndexSet`                                                                           | JSON'dan gelen veriyi doğrulayıp tipli `IndexSet`'e çevirir |
-| `isEnflasyonError`               | `(e: unknown) => e is EnflasyonError`                                                                   | Type guard                                                  |
+| Fonksiyon            | İmza (özet)                                                                                             | Döner                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `normalizeBasket`    | `(basket: Basket) => Weights`                                                                           | Toplamı 1 olan paylar                                       |
+| `itemChange`         | `(series: IndexSeries, from: Period, to: Period) => number`                                             | Oran                                                        |
+| `personalInflation`  | `(input: PersonalInflationInput) => PersonalInflationResult`                                            | Oran + katkılar                                             |
+| `annual`             | `(input: Omit<PersonalInflationInput, "from" \| "to"> & { at: Period }) => PersonalInflationResult`     | Yıllık                                                      |
+| `monthly`            | aynı, `at` ile                                                                                          | Aylık                                                       |
+| `yearToDate`         | aynı, `at` ile                                                                                          | Yılbaşından beri                                            |
+| `twelveMonthAverage` | aynı, `at` ile                                                                                          | 12 aylık ortalama                                           |
+| `adjustAmount`       | `(amount: number, rate: number) => number`                                                              | Bugünkü tutar                                               |
+| `realWageChange`     | `(input: { wageFrom: number; wageTo: number; rate: number }) => { real: number; requiredWage: number }` | Reel değişim                                                |
+| `chainSeries`        | `(older: IndexSeries, newer: IndexSeries, overlap: Period) => IndexSeries`                              | Zincirlenmiş seri                                           |
+| `isPeriod`           | `(value: unknown) => value is Period`                                                                   | Geçerli `"YYYY-MM"` mı (URL çözme gibi dış girdiler için)   |
+| `addMonths`          | `(period: Period, months: number) => Period`                                                            | Ay eklenmiş/çıkarılmış dönem                                |
+| `availablePeriods`   | `(series: IndexSeries) => Period[]`                                                                     | Serideki dönemler, eskiden yeniye                           |
+| `roundTo`            | `(value: number, decimals: number) => number`                                                           | Yuvarlanmış sayı (Bölüm 6)                                  |
+| `toIndexSet`         | `(data: unknown) => IndexSet`                                                                           | JSON'dan gelen veriyi doğrulayıp tipli `IndexSet`'e çevirir |
+| `isEnflasyonError`   | `(e: unknown) => e is EnflasyonError`                                                                   | Type guard                                                  |
 
 `toIndexSet`, JSON import'unun tip sorununu çözer: `import data from "./x.json"` TypeScript'te `Record<string, Record<string, number>>` olarak gelir ve anahtarlar `Period` tipine uymaz. Fonksiyon her dönem anahtarını ve değeri doğrular (`INVALID_PERIOD`, `NON_FINITE`, `NON_POSITIVE_INDEX`, `LIMIT_EXCEEDED`), dönüşü tiplidir; böylece kullanıcı `as` ile tip zorlamak zorunda kalmaz.
+
+**Dönem kuralları** (`src/series/period.ts`): geçerli dönem `1000-01`..`9999-12` arasında, ay her zaman iki hanelidir (`"2026-1"` geçersiz). `Period` tipi biçimi yalnızca kabaca anlatır (`"2026-13"` de tipe uyar); asıl doğrulama çalışma anındadır. `addMonths`'ta ay sayısı tam sayı olmalıdır: `NaN`/`Infinity` → `NON_FINITE`, kesirli değer veya aralık dışına taşma → `INVALID_PERIOD`. `availablePeriods` seri anahtarlarını doğrular (`INVALID_PERIOD`, 1200 ay üstü `LIMIT_EXCEEDED`) ama değerlere bakmaz; değer doğrulaması `toIndexSet`'in işidir. `comparePeriods`, `monthsBetween`, `assertPeriodOrder` iç yardımcıdır, export edilmez.
 
 ### 5.1 Hata modeli
 
