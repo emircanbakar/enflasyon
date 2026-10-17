@@ -543,7 +543,7 @@ Branch protection, iki job'u da "required" yapmak yerine her zaman çalışan k�
 
 **Bot PR'ları neden `GITHUB_TOKEN` ile açılmaz:** `GITHUB_TOKEN` ile açılan veya güncellenen PR'larda başka workflow'lar (`ci.yml`) **tetiklenmez**. Branch protection "CI geçmeli" dediği için böyle bir PR hiç birleştirilemez. Ayrıca bu yol, repo ayarında "Actions PR oluşturabilir" iznini açmayı gerektirir. Çözüm: sadece bu repoya kurulu, minimum yetkili (contents + pull-requests: write) kişisel bir **GitHub App**. Workflow her çalışmada `actions/create-github-app-token` ile kısa ömürlü bir token üretir; bu token ile açılan PR'da CI normal çalışır.
 
-- App kimliği `RELEASE_APP_ID` (variable) ve özel anahtarı `RELEASE_APP_PRIVATE_KEY` (secret) olarak **sadece `npm` environment'ında** tutulur. Bu, paketin tek secret'ıdır ve npm yayınıyla ilgisi yoktur.
+- App kimliği `RELEASE_APP_CLIENT_ID` (repo variable; `app-id` girdisi kullanımdan kalktı) ve özel anahtarı `RELEASE_APP_PRIVATE_KEY` (secret) olarak **sadece `npm` environment'ında** tutulur. Bu, paketin tek secret'ıdır ve npm yayınıyla ilgisi yoktur.
 - Version Packages commit'lerinin "Verified" olması için Changesets action'da `commitMode: github-api` kullanılır; commit'ler API üzerinden oluşturulduğu için GitHub tarafından imzalanır.
 - `environment: npm` üzerindeki manuel onay açılacaksa, onay her `main` push'unda (sadece PR güncellemesi için bile) istenir. Bu yüzden yayın ile PR güncellemesi iki ayrı job'a bölünebilir; MVP'de manuel onay kapalı tutulur.
 
@@ -565,7 +565,7 @@ jobs:
       - uses: actions/create-github-app-token@<sha> # v2
         id: app
         with:
-          app-id: ${{ vars.RELEASE_APP_ID }}
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
       - uses: actions/checkout@<sha> # v4
         with: { token: "${{ steps.app.outputs.token }}" }

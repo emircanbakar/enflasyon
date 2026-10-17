@@ -165,92 +165,78 @@ apps/web/
 
 ## 4. Veri kaynağı ve pipeline
 
-Birincil kaynak **TCMB EVDS** web servisidir: TÜİK'in yayınladığı TÜFE serilerini makine tarafından okunabilir biçimde sunar. Servis **kişisel bir API anahtarı** ister; anahtar EVDS profil sayfasından alınır ve güncel servis sürümünde URL'de değil **HTTP header**'da gönderilir. ([EVDS kullanım kılavuzu](https://evds2.tcmb.gov.tr/help/videos/EVDS_Web_Service_Usage_Guide.pdf), [evdspy notu](https://pypi.org/project/evdspy/1.1.20)) Bu anahtar (ve veri PR'ını açan GitHub App'in anahtarı, Bölüm 4.1) **sadece GitHub Actions'ta** kullanılır; tarayıcıya, Vercel'e veya repoya asla girmez.
+Uygulamanın tek verisi, TÜİK'in yayınladığı **TÜFE ana harcama grubu endeksleri** (2025=100, COICOP 2018, 13 grup + genel endeks) ve **yıllık resmi grup ağırlıklarıdır**. Pipeline `apps/web/scripts/data/` altındadır, `data/*.json` üretir; uygulama yalnızca bu dosyaları bilir.
 
-Önemli bağlam: TÜFE'nin baz yılı güncel yayınlarda **2025=100**'dür ([TCMB Tüketici Fiyatları](https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Enflasyon%2BVerileri/Tuketici%2BFiyatlari)). 5 yıllık grafik eski bazlı (2003=100) seriyle birleştirilmek zorundadır; bu, `enflasyon-core`'daki `chainSeries` fonksiyonunun gerçek kullanım yeridir. Baz değişiminde grup sınıflaması da değişmiş olabilir; eski ve yeni gruplar arasındaki eşleme `data/group-mapping.json` dosyasında açıkça tutulur.
+**Kaynaklar** (17 Ekim 2026'da doğrulandı):
+
+| Kaynak                     | Rol                                 | Erişim                                                                                                                                                                                                                                                                      |
+| -------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **TCMB EVDS3** web servisi | Birincil, otomatik (aylık workflow) | `https://evds3.tcmb.gov.tr/igmevdsms-dis/series=…&startDate=gg-aa-yyyy&endDate=…&type=json&frequency=5`; kişisel anahtar HTTP header'ında `key` olarak (URL'de değil). Bir istekte en fazla 1000 gözlem. ([EVDS Web Servis Kılavuzu](https://evds3.tcmb.gov.tr/dokumanlar)) |
+| **TÜİK Veri Portalı**      | Yedek ve ilk veri (anlık görüntü)   | `veriportali.tuik.gov.tr` tabloları `TR,DF_TUFE_SDMX_TT01` (endeks) ve `TT08` (ağırlık). Portal tarayıcı dışı istemcileri engeller; veri tarayıcıdan alınıp `data/sources/` altına kaydedilir.                                                                              |
+
+**Seri kodları (EVDS3):** endeksler `TP.TUKFIY2025.GENEL` ve `TP.TUKFIY2025.01`–`.13` (veri grubu `bie_tukfiy2025`), ağırlıklar `TP.TUKFIYAGRLK.01`–`.13` (`bie_tukfiyagrlk`, yıllık). Grup sırası COICOP 2018 sırasıdır ve `lib/categories.ts`'deki `CATEGORY_KEYS` ile birebir aynıdır (`gida` = 01 … `kisisel_bakim` = 13).
+
+**Baz değişimi:** TÜİK yeni (2025=100) bazlı grup endekslerini **2005'e kadar geriye dönük** hesaplayıp yayımlamıştır. Bu yüzden 5 yıllık grafik için eski (2003=100) seriyle zincirleme gerekmez; `chainSeries` ileride başka bir baz değişimi için pakette hazır durur. Geriye dönük değerler 6 ondalıkla, 2026 ve sonrası 2 ondalıkla yayımlanır.
+
+**Kullanım şartları ve atıf:** EVDS şartlarına göre veriler **kaynak gösterilmek koşuluyla** üçüncü kişilerce kullanılabilir ve yayımlanabilir; ürün kullanıcılarına ek ücret olarak yansıtılamaz. Atıf `meta.json`'daki `attribution` alanından altbilgiye ve metodoloji sayfasına basılır ("Kaynak: TÜİK; TCMB EVDS üzerinden.").
 
 ### 4.1 Pipeline adımları
 
-1. **`fetch.ts`** — EVDS'den grup endeks serilerini ve genel TÜFE'yi çeker. Anahtar `process.env.EVDS_API_KEY`'den okunur; yoksa script anlamlı bir hatayla durur. Ham yanıt `.cache/` altına yazılır (gitignore'da).
-2. **`validate.ts`** — Zod şemasıyla doğrular: her değer pozitif sonlu sayı, aylar ardışık ve boşluksuz, son ay bir önceki veriden yeni veya eşit, aylık değişim ±%30 bandı dışındaysa uyarı (yazım hatası tespiti), grup sayısı beklenenle aynı.
-3. **Çapraz kontrol** — Grup endeksleri **o yılın** resmi ağırlıklarıyla `enflasyon-core` üzerinden hesaplanır ve resmi genel TÜFE ile karşılaştırılır. Bu, hem verinin hem paketin aynı anda doğrulanmasıdır. TÜİK ağırlıkları her yıl güncelleyip endeksi Aralık'ta zincirlediği için kontrol iki kademelidir:
-   - **Engelleyici (yıl içi):** önceki Aralık → son ay değişimi. Bu dönem tek zincir halkasında kaldığı için sonuç örtüşmelidir; fark ±0,1 puanı aşarsa pipeline durur.
-   - **Uyarı (yıllık):** 12 aylık değişim iki zincir halkasına yayıldığı için sabit ağırlıkla küçük fark beklenir. Fark PR açıklamasına yazılır, ±1 puanı aşarsa PR'a uyarı etiketi eklenir ama pipeline durmaz. Böylece yüksek enflasyon dönemindeki doğal sapma aylık güncellemeyi bloke etmez.
-   - Bu yüzden `cpi-weights.json` yıla göre tutulur: `{ "2025": {...}, "2026": {...} }`.
-4. **`build.ts`** — Normalize edilmiş JSON'ları `data/` altına yazar: anahtarlar sabit sıralı, değerler 2 ondalık, `meta.json`'a kaynak, çekilme zamanı, son veri ayı, baz yılı.
-5. **PR açılır** — Workflow doğrudan `main`'e yazmaz; "data: 2026-10 TÜFE" başlıklı bir PR açar. CI (testler + e2e) geçer, sen birleştirirsin, Vercel deploy eder. İstersen bir süre sonra otomatik merge'e geçilir.
+`pnpm --filter web data:update [--source evds|tuik-snapshot] [--from 2020-01]`
 
-**PR `GITHUB_TOKEN` ile açılmaz.** `GITHUB_TOKEN` ile açılan PR'larda `ci.yml` tetiklenmez; branch protection "CI geçmeli" dediği için PR hiç birleştirilemez. Ayrıca bu yol repo ayarında "Actions PR oluşturabilir" iznini açmayı gerektirir. Motor paketindeki gibi (core dokümanı Bölüm 10), sadece bu repoya kurulu minimum yetkili bir **GitHub App**'in kısa ömürlü token'ı kullanılır. Commit'ler `sign-commits: true` ile API üzerinden oluşturulur ve "Verified" olur; böylece "imzalı commit zorunlu" kuralına takılmaz.
+1. **Kaynak** (`sources.ts`) — EVDS3'ten endeks ve ağırlık serilerini çeker veya TÜİK anlık görüntüsünü okur. EVDS yanıtında tarih `"2026-9"` ya da `"01-09-2026"` olarak gelebilir, seri kolonlarında nokta yerine alt çizgi bulunur; okuyucu ikisini de kabul eder ama sonucu Zod şemasından geçirir. Yanıt biçimi beklenenden farklıysa (ör. `items` yoksa) açık bir hatayla durur, sessizce yanlış veri üretmez. Anahtar yoksa istek atılmaz; HTTP hatalarında anahtar asla mesaja yazılmaz.
+2. **Doğrulama** (`schema.ts`, `validate.ts`) — her değer pozitif sayı, 13 grup + genel aynı ve ardışık aylara sahip, son ay mevcut veriden eski değil, ağırlık toplamı 100 ± 0,1. Aylık değişim ±%30 dışındaysa **uyarı** (ör. Eylül 2023'te eğitim %30,3: gerçek okul ücreti artışı).
+3. **Çapraz kontrol** (`crosscheck.ts`) — grup endeksleri o yılın resmi ağırlıklarıyla `enflasyon-core` üzerinden toplanır ve resmi genel endeksle karşılaştırılır:
+   - **Engelleyici:** son ayın yılbaşından beri değişimi, ±0,1 puan.
+   - **Bilgi:** her yılın Aralık ayı (yılbaşından beri) ve son ayın yıllık değişimi; yıllık fark ±1 puanı aşarsa uyarı (yıllık dönem iki zincir halkasına yayılır).
+   - **İlk sonuç (Eylül 2026 verisi):** 2021–2025 Aralık ayları ve Eylül 2026'da fark **≤ 0,001 puan**; yıllık (2026 ağırlıklarıyla) −0,145 puan. Bu hem verinin hem paketin aynı anda doğrulanmasıdır.
+4. **Üretim** (`build.ts`) — `data/cpi-groups.json`, `data/cpi-weights.json`, `data/meta.json`. Değerler **yayımlandığı gibi** saklanır (yuvarlanmaz: geriye dönük 6 ondalıklı değerleri yuvarlamak çapraz kontrolü 0,001'den 0,005 puana bozar). Anahtarlar sabit sıralıdır; aynı veri bayt düzeyinde aynı dosyayı üretir, veri PR'ındaki fark yalnızca yeni ayı gösterir. Varsayılan pencere 2020-01'den bugüne (5 yıllık yıllık enflasyon grafiği + 12 ay geriye bakış).
+5. **Rapor ve PR** — çapraz kontrol tablosu ve uyarılar `.cache/data-report.md`'ye yazılır; workflow bunu PR açıklaması yapar. Hata varsa hiçbir dosya yazılmaz ve komut 1 ile çıkar.
 
-### 4.2 Zamanlama
+Repodaki veri CI'da her seferinde yeniden doğrulanır (`test/data/pipeline.test.ts`): şemalar, doğrulama, çapraz kontrol ve kaynak anlık görüntüsünden yeniden üretildiğinde bayt düzeyinde aynı olması (veri elle düzenlenemez).
 
-TÜİK enflasyonu her ayın 3'ünde saat 10:00'da açıklar; EVDS'ye yansıması kısa sürer. `data-update.yml` her ayın 3'ü, 4'ü ve 5'inde 11:00 (İstanbul) çalışır; yeni ay yoksa "değişiklik yok" diye çıkar. Ayrıca `workflow_dispatch` ile elle tetiklenebilir.
+**PR `GITHUB_TOKEN` ile açılmaz.** `GITHUB_TOKEN` ile açılan PR'larda `ci.yml` tetiklenmez. Sadece bu repoya kurulu, minimum yetkili (contents + pull-requests: write) bir **GitHub App**'in kısa ömürlü token'ı kullanılır; commit'ler `sign-commits: true` ile API üzerinden imzalanır.
 
-```yaml
-name: data-update
-on:
-  schedule:
-    - cron: "0 8 3-5 * *" # 11:00 Europe/Istanbul
-  workflow_dispatch:
-permissions: {}
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    environment: data # secret'lar sadece bu environment'ta
-    permissions:
-      contents: read # yazma işi App token'ıyla yapılır
-    steps:
-      - uses: actions/create-github-app-token@<sha>
-        id: app
-        with:
-          app-id: ${{ vars.DATA_APP_ID }}
-          private-key: ${{ secrets.DATA_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@<sha>
-        with: { persist-credentials: false }
-      - uses: pnpm/action-setup@<sha>
-      - uses: actions/setup-node@<sha>
-        with: { node-version: 24 }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm data:update
-        env:
-          EVDS_API_KEY: ${{ secrets.EVDS_API_KEY }}
-      - uses: peter-evans/create-pull-request@<sha>
-        with:
-          token: ${{ steps.app.outputs.token }} # PR'da ci.yml tetiklensin
-          sign-commits: true # "Verified" commit
-          branch: data/auto-update
-          title: "data: monthly CPI update"
-          commit-message: "data: add monthly CPI update"
-```
+### 4.2 Zamanlama ve kurulum
+
+`.github/workflows/data-update.yml` her ayın 3'ü, 4'ü ve 5'inde 11:00'de (İstanbul) ve elle (`workflow_dispatch`) çalışır. Kurulum tamamlanana kadar job **atlanır** (repo değişkeni `DATA_APP_CLIENT_ID` boşken), böylece zamanlanmış çalışmalar boşuna hata vermez.
+
+Kurulum (bir kez, elle):
+
+1. EVDS3'e üye ol → Profilim → **API Key Kopyala**.
+2. GitHub → Settings → Environments → **`data`** oluştur, "Deployment branches" = yalnızca `main`; secret'lar: `EVDS_API_KEY`, `DATA_APP_PRIVATE_KEY`.
+3. Kişisel bir GitHub App oluştur (izinler: Contents read/write, Pull requests read/write; webhook kapalı), yalnızca bu repoya kur, özel anahtar üret.
+4. Repo değişkeni (Settings → Variables → Actions, repository): `DATA_APP_CLIENT_ID` = App'in Client ID'si. (Job seviyesindeki `if` environment değişkenlerini göremediği için bu değer repo düzeyindedir; gizli değildir.)
+5. Actions → data-update → **Run workflow** ile ilk çalıştırma. İlk EVDS yanıtı biçimi bu çalıştırmada doğrulanır.
 
 ### 4.3 Secret güvenliği (EVDS anahtarı)
 
-- Anahtar **GitHub → Settings → Environments → `data`** altında environment secret olarak tutulur, repo secret'ı olarak değil. Environment sadece `main` branch'inden çalışacak şekilde kısıtlanır; böylece bir fork veya PR workflow'u anahtara ulaşamaz.
-- `pull_request_target` tetikleyicisi **hiçbir workflow'da kullanılmaz** (fork PR'larına secret sızdırmanın en yaygın yolu).
-- Script anahtarı asla loglamaz; hata mesajlarında request header'ı yazdırılmaz. GitHub da secret değerini loglarda otomatik maskeler, ama buna güvenilmez.
-- Yerel geliştirmede anahtar `.env.local`'de durur (gitignore'da). Repoda sadece `.env.example` vardır: `EVDS_API_KEY=` (değer boş).
-- Yerel geliştirme anahtarsız da çalışır: `data/` zaten commit'li olduğu için uygulama ayağa kalkar; anahtar sadece veriyi güncellemek için gerekir.
-- EVDS kullanım koşulları başlamadan okunur; yeniden yayın (türetilmiş veriyi public repoda tutma) izni ve atıf şekli kontrol edilir. Atıf metodoloji sayfasında ve altbilgide yer alır.
+- Anahtar `data` environment secret'ıdır, repo secret'ı değil; environment yalnızca `main`'den çalışır, fork veya PR workflow'u anahtara ulaşamaz.
+- `pull_request_target` hiçbir workflow'da kullanılmaz.
+- Script anahtarı loglamaz; hata mesajlarında header yazdırılmaz (testle doğrulanır).
+- Yerelde anahtar `.env.local`'de durur (gitignore'da); repoda sadece boş değerli `.env.example` vardır.
+- Uygulama anahtarsız çalışır: `data/` commit'lidir, anahtar yalnızca güncelleme içindir. Yerelde anahtarsız güncelleme için `--source tuik-snapshot`.
 
 ### 4.4 Yedek plan
 
-EVDS erişimi kesilir veya koşullar uygun olmazsa: TÜİK'in veri portalından aylık bülten tabloları indirilip `scripts/data/import-csv.ts` ile aynı şemaya dönüştürülür. Uygulama veri kaynağından bağımsızdır; sadece `data/*.json` formatını bilir.
+EVDS erişimi kesilirse: TÜİK veri portalında iki tablo (`TT01` endeks, `TT08` ağırlık) tarayıcıdan alınıp `data/sources/tuik-tt01.json` ve `tuik-tt08.json` güncellenir, ardından `data:update --source tuik-snapshot` çalıştırılır. Anlık görüntü golden test verisiyle de karşılaştırılarak doğrulanmıştır (56 değerin hepsi tutuyor). Uygulama veri kaynağından bağımsızdır; sadece `data/*.json` biçimini bilir.
 
 ### 4.5 Veri formatı
 
 ```json
-// data/cpi-groups.json
+// data/cpi-groups.json (kısaltılmış)
 {
   "base": "2025=100",
   "series": {
-    "genel": { "2025-01": 92.31, "2025-02": 94.4 },
-    "konut": { "2025-01": 90.12, "2025-02": 93.05 },
-    "gida": { "2025-01": 93.7, "2025-02": 95.11 }
+    "genel": { "2025-12": 110.386963, "2026-09": 137.23 },
+    "gida": { "2025-12": 110.008887, "2026-09": 134.04 }
   }
 }
 ```
 
-Dosyanın tamamı değil, `series` alanı `enflasyon-core`'un `IndexSet` yapısına uyar (değerler örnek amaçlıdır). JSON import'u TypeScript'te `Period` anahtar tipini taşımadığı için `lib/calc.ts` veriyi `toIndexSet(data.series)` ile doğrulayıp tipler; `as` ile tip zorlanmaz. Bu çağrı build sırasında server tarafında yapılır, client'a hazır veri gider.
+`cpi-weights.json`: `{ "2026": { "gida": 24.44, … } }` (yıl → grup → %). `meta.json`: kaynak, atıf, baz, ilk/son ay, alınma tarihi. Gömülü verinin tamamı 8,4 KB gzip (bütçe 20 KB).
+
+Dosyanın tamamı değil, `series` alanı `enflasyon-core`'un `IndexSet` yapısına uyar. JSON import'u TypeScript'te `Period` anahtar tipini taşımadığı için uygulama veriyi `toIndexSet(data.series)` ile doğrulayıp tipler; `as` ile tip zorlanmaz.
 
 ## 5. State, URL şeması ve hesaplama entegrasyonu
 
@@ -449,7 +435,7 @@ Uygulamanın çalışma anında **hiçbir secret'ı yoktur**. Secret'lar (EVDS a
 | Değişken                       | Nerede                                                 | Gizli mi | Not                                                                                  |
 | ------------------------------ | ------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------ |
 | `EVDS_API_KEY`                 | GitHub Environment `data` secret; yerelde `.env.local` | Evet     | Sadece `scripts/data/` okur                                                          |
-| `DATA_APP_PRIVATE_KEY`         | GitHub Environment `data` secret                       | Evet     | Veri PR'ını açan GitHub App; `DATA_APP_ID` aynı environment'ta variable              |
+| `DATA_APP_PRIVATE_KEY`         | GitHub Environment `data` secret                       | Evet     | Veri PR'ını açan GitHub App; `DATA_APP_CLIENT_ID` repo variable (gizli değil)        |
 | `NEXT_PUBLIC_SITE_URL`         | Vercel env                                             | Hayır    | Canonical ve OG için                                                                 |
 | `NEXT_PUBLIC_ANALYTICS_DOMAIN` | Vercel env                                             | Hayır    | Plausible/Umami site kimliği                                                         |
 | `NEXT_PUBLIC_SENTRY_DSN`       | Vercel env                                             | Hayır    | DSN public olacak şekilde tasarlanmıştır; Sentry'de "allowed domains" ile sınırlanır |
@@ -548,7 +534,7 @@ Web uygulaması aynı monorepo'da olduğu için npm yayınını beklemez; motor 
 ### 12.4 Açık sorular
 
 - Ürün adı ve alan adı
-- EVDS kullanım koşullarının türetilmiş veriyi public repoda tutmaya ve yeniden yayına izin verip vermediği (adım 1'de okunacak)
-- Yeni baz (2025=100) ile eski baz arasındaki grup eşlemesinin bire bir olup olmadığı ve 5 yıllık grafiğin hangi gruplarda mümkün olduğu (adım 4'te veriye bakılarak netleşecek)
+- ~~EVDS kullanım koşulları~~ → yanıtlandı: kaynak gösterilerek yayın serbest (Bölüm 4)
+- ~~Baz değişimi ve grup eşlemesi~~ → yanıtlandı: TÜİK yeni bazlı grupları 2005'e kadar geriye hesapladı, zincirleme gerekmez (Bölüm 4)
 - Hazır profillerin hangi resmi kaynaktan türetileceği
 - Analitik: Plausible (ücretli, barındırılan) mı, Umami (ücretsiz, self-host veya cloud) mı

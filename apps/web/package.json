@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "data:update": "node scripts/data/update.ts"
   },
   "dependencies": {
     "enflasyon-core": "workspace:^",
