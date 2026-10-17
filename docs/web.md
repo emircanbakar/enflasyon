@@ -259,7 +259,7 @@ Tek doğruluk kaynağı **URL**'dir. Sepet, mod ve dönem URL parametrelerinde d
 ### 5.1 URL şeması
 
 ```
-/sonuc?v=1&d=y&at=2026-09&w=konut.595~gida.286~ulastirma.119#m=tl&s=konut.25000~gida.12000~ulastirma.5000
+/sonuc?v=1&d=y&at=2026-09&w=gida.286~konut.595~ulastirma.119#m=tl&s=gida.12000~konut.25000~ulastirma.5000
 ```
 
 URL iki parçadan oluşur. **Query** (`?…`) sunucuya gider ve sadece oranları içerir; **fragment** (`#…`) tarayıcıda kalır ve TL tutarlarını içerir.
@@ -274,6 +274,8 @@ URL iki parçadan oluşur. **Query** (`?…`) sunucuya gider ve sadece oranları
 | `p`       | query    | Profil            | opsiyonel; `w` veya `s` varsa yok sayılır                                                                                                  |
 | `m`       | fragment | Giriş modu        | `tl` / `pct` (arayüzde hangi modun açılacağı)                                                                                              |
 | `s`       | fragment | TL tutarları      | `kalem.tutar` çiftleri, tam sayı TL; sıfır kalemler yazılmaz                                                                               |
+
+Kalemler her zaman `lib/categories.ts`'deki sıra ile yazılır (TÜİK tablo sırası); aynı sepet her zaman aynı linki üretir. Yüzde modu fragment'te `m=pct` ile açıkça işaretlenir (hassas değildir); fragment'te mod yoksa `w` varsa yüzde, yoksa varsayılan TL modu açılır. Uygulama: `apps/web/lib/basket-url.ts`, gidiş-dönüş ve rastgele girdi property testleriyle.
 
 Değerler **sadece tam sayıdır**; böylece `kalem.değer` ayrımındaki `.` hiçbir zaman belirsiz olmaz (ondalık TL veya yüzde URL'e yazılmaz, binde kullanılır). Kısa ve okunabilir olması için JSON veya base64 kullanılmaz; böylece link WhatsApp'ta da makul görünür. Kalem anahtarları `lib/categories.ts`'deki sabit listeden gelir; listede olmayan anahtar sessizce atılır.
 
