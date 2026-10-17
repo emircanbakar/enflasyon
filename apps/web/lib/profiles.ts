@@ -1,3 +1,4 @@
+import { toPercentages } from "./basket-state";
 import { CATEGORY_KEYS } from "./categories";
 import type { CategoryKey } from "./categories";
 
@@ -29,8 +30,8 @@ export function officialProfile(
     id: OFFICIAL_PROFILE_ID,
     label: "Türkiye ortalaması",
     description: `TÜİK'in ${year} resmi sepet ağırlıkları. Sonuç resmi enflasyona çok yakın çıkar.`,
-    percentages: Object.fromEntries(
-      CATEGORY_KEYS.map((key) => [key, Math.round(weights[key] * 10) / 10]),
-    ),
+    // Resmi ağırlıkların toplamı yayın yuvarlaması yüzünden 100 değildir (ör. 99,97);
+    // toplamı tam 100 olan yüzdelere çevrilir, böylece "toplam eksik" uyarısı çıkmaz.
+    percentages: toPercentages(Object.fromEntries(CATEGORY_KEYS.map((key) => [key, weights[key]]))),
   };
 }

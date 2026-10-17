@@ -77,7 +77,9 @@ describe("Calculator", () => {
         .getByRole("button", { name: /Türkiye ortalaması seçili/ })
         .getAttribute("aria-pressed"),
     ).toBe("true");
-    expect(screen.getByLabelText<HTMLInputElement>("Gıda").value).toBe("24,4");
+    // Resmi ağırlıklar (toplam 99,97) tam 100'e normalize edilir: 24,44 → 24,5.
+    expect(screen.getByLabelText<HTMLInputElement>("Gıda").value).toBe("24,5");
+    expect(screen.queryByText(/Toplam %/)).toBeNull();
     const region = resultRegion();
     expect(within(region).getByText(/Resmi:/)).toBeTruthy();
     expect(within(region).getByText("%29,7")).toBeTruthy(); // resmi yıllık
