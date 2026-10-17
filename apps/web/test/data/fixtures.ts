@@ -1,11 +1,15 @@
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { addMonths } from "enflasyon-core";
 import type { Period } from "enflasyon-core";
 import { CATEGORY_KEYS } from "../../lib/categories";
 import type { CpiGroups, CpiWeights } from "../../scripts/data/schema";
 
+/** apps/web köküne göre JSON okur. jsdom ortamında da çalışsın diye URL nesnesi değil düz yol kullanılır. */
+const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const readJson = (relative: string): unknown =>
-  JSON.parse(readFileSync(new URL(`../../${relative}`, import.meta.url), "utf8")) as unknown;
+  JSON.parse(readFileSync(join(webRoot, relative), "utf8")) as unknown;
 
 /**
  * Küçük, tutarlı sentetik veri: her grup sabit aylık oranla büyür, genel endeks

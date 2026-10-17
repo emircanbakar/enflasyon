@@ -31,7 +31,7 @@ export default tseslint.config(
   },
   {
     // Testlerde fixture'lardan değer okurken `!` kabul edilir; kaynak kodda yasak kalır.
-    files: ["**/test/**/*.ts"],
+    files: ["**/test/**/*.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-non-null-assertion": "off",
     },

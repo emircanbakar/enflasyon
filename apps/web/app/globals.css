@@ -3,17 +3,25 @@
 /* Tasarım token'ları: açık tema varsayılan, koyu tema sistem tercihine göre. */
 @theme {
   --color-surface: #ffffff;
+  --color-card: #f7f7f5;
+  --color-line: #dcdcd7;
   --color-ink: #111418;
   --color-muted: #5b6470;
   --color-accent: #c2410c;
+  --color-official: #2f5d8a;
+  --color-danger: #b42318;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --color-surface: #0f1115;
+    --color-card: #171a20;
+    --color-line: #2c313a;
     --color-ink: #eef0f3;
     --color-muted: #a3acb8;
     --color-accent: #fb923c;
+    --color-official: #7fb2e5;
+    --color-danger: #f97066;
   }
 }
 

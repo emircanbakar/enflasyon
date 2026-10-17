@@ -87,6 +87,8 @@ Uygulama tek bir ana sayfada, kaydırılarak ilerleyen üç bölümden oluşur. 
 
 Profillerin dağılımları uydurulmaz; TÜİK'in hanehalkı tüketim harcaması verilerinden veya resmi ağırlıklardan türetilir ve kaynakları metodoloji sayfasında belirtilir. Türetme yapılamayan profil MVP'ye alınmaz.
 
+**Şu anki durum (web Adım 6):** tek profil **"Türkiye ortalaması"**dır; TÜİK'in son yılın resmi grup ağırlıklarından türetilir ve 'nereden başlayacağını bilmeyen' kullanıcıya hazır sepet sunar. Öğrenci, kiracı aile gibi profiller TÜİK Hanehalkı Bütçe Araştırması verisi eklendiğinde gelir; o zamana kadar uydurma profil gösterilmez.
+
 ## 3. Mimari ve repo yapısı
 
 Uygulama **statik öncelikli** üretilir: `/` ve tüm içerik sayfaları SSG'dir. Çalışma anında sunucu işi iki tanedir: paylaşım görseli (`/api/og`) ve paylaşılan `/sonuc` linkinin metadata'sı (query'deki yüzdeleri okuduğu için dinamik render edilir, Bölüm 8.1). İkisi de TL tutarı görmez. Veri build sırasında JSON olarak gömülür, hesap tarayıcıda `enflasyon-core` ile yapılır. Veritabanı, kullanıcı oturumu ve runtime secret yoktur.
@@ -365,6 +367,8 @@ Paylaşılan `/sonuc?…` linki WhatsApp, X veya LinkedIn'de açıldığında ki
 ## 8. Performans bütçeleri
 
 Bütçeler CI'da zorunludur; aşılırsa PR birleştirilemez. Ölçümler mobil profilde (Moto G Power sınıfı, yavaş 4G) yapılır.
+
+**Ölçüm (web Adım 6, hesaplayıcı eklendikten sonra; Next.js 16.4, React 19.3):** ana sayfanın ilk yükünde modern tarayıcıya giden JS **~144 KB gzip**: framework (React + Next runtime) ~135 KB, uygulamanın kendi kodu (hesaplayıcı + `enflasyon-core`) **9 KB**. Ayrıca 39 KB'lık `core-js` polyfill chunk'ı `noModule` ile yalnızca eski tarayıcılara gider. Uygulama bütçesi (< 50 KB) ve island bütçesi (< 35 KB) rahatça tutuyor; framework tabanı ise aşağıdaki 110 KB eşiğini aşıyor. Bu yüzden Preact/Astro alternatifi, Lighthouse ve gerçek kullanıcı INP ölçümleri (Adım 11) alındıktan sonra karara bağlanacak.
 
 **JS bütçesi neden iki parçalı:** App Router'da React + Next.js runtime tek başına yaklaşık 90–100 KB gzip tutar ve bu kısım uygulama kodundan bağımsızdır. Toplam için 90 KB gibi sabit bir sınır, ilk PR'dan itibaren aşılır. Bu yüzden taban (framework) adım 2'de boş bir sayfayla ölçülür ve kayda geçer; bütçe, uygulamanın kendi eklediği kod üzerinden konur. Framework sürüm yükseltmesinde taban yeniden ölçülür. Toplam ilk yük JS ölçülen değerin çok üstünde çıkarsa (ör. taban > 110 KB), island'ı Preact ile derlemek veya hesaplayıcıyı daha hafif bir framework'e (Astro + island) taşımak değerlendirilir; bu karar case study'de ölçümlerle anlatılır.
 
