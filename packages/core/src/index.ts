@@ -18,3 +18,5 @@ export { EnflasyonError, isEnflasyonError } from "./errors.js";
 export type { EnflasyonErrorCode } from "./errors.js";
 
 export { addMonths, availablePeriods, isPeriod } from "./series/period.js";
+
+export { normalizeBasket } from "./basket/normalize.js";

@@ -23,6 +23,8 @@ const ERROR_CODES = [
   "INVALID_KEY",
   /** Sepette 500'den fazla kalem veya seride 1200'den fazla ay. */
   "LIMIT_EXCEEDED",
+  /** Girdinin yapısı yanlış: bilinmeyen sepet modu, obje olmayan kalemler, sayı olmayan değer. */
+  "INVALID_INPUT",
 ] as const;
 
 /** Makine tarafından okunabilir hata kodu. UI, mesajı bu koda göre üretir. */

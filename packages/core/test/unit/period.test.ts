@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { isEnflasyonError } from "../../src/errors.js";
-import type { EnflasyonErrorCode } from "../../src/errors.js";
 import {
   addMonths,
   assertPeriod,
@@ -13,17 +12,7 @@ import {
   toMonthIndex,
 } from "../../src/series/period.js";
 import type { IndexSeries, Period } from "../../src/types.js";
-
-function expectCode(fn: () => unknown, code: EnflasyonErrorCode): void {
-  try {
-    fn();
-  } catch (error) {
-    expect(isEnflasyonError(error)).toBe(true);
-    expect((error as { code: unknown }).code).toBe(code);
-    return;
-  }
-  expect.fail(`"${code}" hatası bekleniyordu ama fırlatılmadı`);
-}
+import { expectCode } from "../helpers.js";
 
 describe("isPeriod", () => {
   it.each(["2026-01", "2026-09", "2026-12", "1000-01", "9999-12"])("%s geçerli", (value) => {

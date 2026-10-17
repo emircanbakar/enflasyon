@@ -317,6 +317,8 @@ Public yüzey küçük tutulur: aşağıdaki tablodaki 16 fonksiyon, 1 hata sın
 
 **Dönem kuralları** (`src/series/period.ts`): geçerli dönem `1000-01`..`9999-12` arasında, ay her zaman iki hanelidir (`"2026-1"` geçersiz). `Period` tipi biçimi yalnızca kabaca anlatır (`"2026-13"` de tipe uyar); asıl doğrulama çalışma anındadır. `addMonths`'ta ay sayısı tam sayı olmalıdır: `NaN`/`Infinity` → `NON_FINITE`, kesirli değer veya aralık dışına taşma → `INVALID_PERIOD`. `availablePeriods` seri anahtarlarını doğrular (`INVALID_PERIOD`, 1200 ay üstü `LIMIT_EXCEEDED`) ama değerlere bakmaz; değer doğrulaması `toIndexSet`'in işidir. `comparePeriods`, `monthsBetween`, `assertPeriodOrder` iç yardımcıdır, export edilmez.
 
+**Sepet kuralları** (`src/basket/`): `normalizeBasket` önce yapıyı doğrular (bilinmeyen `mode`, düz obje olmayan `items` veya sayı olmayan değer → `INVALID_INPUT`), sonra her kalemi anahtara göre sıralı işler (`INVALID_KEY`, `NON_FINITE`, `NEGATIVE_VALUE`; 500 kalem üstü `LIMIT_EXCEEDED`). Değeri 0 olan kalemler sonuçtan çıkarılır; hiç pozitif kalem yoksa `EMPTY_BASKET`. `amount` modunda değerler önce en büyük değere bölünür, sonra toplama oranlanır; böylece çok büyük tutarlarda toplam taşmaz. Dönen `Weights` dondurulmuş, prototipsiz (`Object.create(null)`) ve anahtarları sıralıdır.
+
 ### 5.1 Hata modeli
 
 Tek bir hata sınıfı ve makine tarafından okunabilir kodlar kullanılır. UI, `code` alanına göre Türkçe mesaj üretir; paket mesajları İngilizce ve geliştirici odaklıdır.
@@ -334,7 +336,8 @@ export type EnflasyonErrorCode =
   | "NON_POSITIVE_INDEX" // endeks değeri ≤ 0
   | "NO_OVERLAP" // zincirlemede ortak dönem yok
   | "INVALID_KEY" // __proto__, constructor, prototype veya boş anahtar
-  | "LIMIT_EXCEEDED"; // sepette > 500 kalem veya seride > 1200 ay
+  | "LIMIT_EXCEEDED" // sepette > 500 kalem veya seride > 1200 ay
+  | "INVALID_INPUT"; // bilinmeyen sepet modu, obje olmayan kalemler, sayı olmayan değer
 
 export class EnflasyonError extends Error {
   readonly code: EnflasyonErrorCode;
