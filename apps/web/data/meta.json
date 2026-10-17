@@ -1,0 +1,9 @@
+{
+  "source": "tuik-snapshot",
+  "sourceLabel": "TÜİK Veri Portalı, Ana harcama gruplarına göre tüketici fiyat endeksi (TÜFE) ve değişim oranları (TR,DF_TUFE_SDMX_TT01,1.0), Endeks, 2025=100",
+  "attribution": "Kaynak: TÜİK Veri Portalı.",
+  "base": "2025=100",
+  "firstPeriod": "2020-01",
+  "lastPeriod": "2026-09",
+  "retrievedAt": "2026-10-17"
+}
