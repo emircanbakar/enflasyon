@@ -180,7 +180,7 @@ export interface Contribution {
   readonly weight: number; // 0..1
   readonly change: number; // kalemin kendi değişimi, oran (0.45 = %45)
   readonly contribution: number; // weight × change, puan olarak oran
-  /** Toplam enflasyondaki payı: contribution / rate. rate = 0 iken null (Bölüm 4.2).
+  /** Toplam enflasyondaki payı: contribution / rate. |rate| < 1e-12 iken null (Bölüm 4.2).
    *  Katkılar zıt işaretliyse 0..1 dışına çıkabilir. */
   readonly share: number | null;
   readonly usedFallback: boolean;
@@ -235,7 +235,7 @@ Her kalemin katkısı `w_i × r_i`'dir; toplam enflasyondaki payı `(w_i × r_i)
 
 **Pay için özel durumlar:**
 
-- `π = 0` (ör. `from === to` veya artış ve düşüşlerin birbirini tam götürmesi): `share` **`null`** döner. NaN veya Infinity asla dönmez. UI bu durumda pay yerine sadece puan katkısını gösterir.
+- `π ≈ 0` (`|π| < 1e-12`; ör. `from === to` veya artış ve düşüşlerin birbirini götürmesi): `share` **`null`** döner. Eşik gereklidir: %10 artış ile %10 düşüş kağıt üzerinde sıfırlanır ama kayan noktada `110/100 − 1` ve `90/100 − 1` tam simetrik değildir, π `5,5e-17` çıkar ve pay 10¹⁵ mertebesine fırlar. π'nin kendisi yuvarlanmaz (Bölüm 6); 1e-12 yüzde olarak 1e-10'dur. NaN veya Infinity asla dönmez. UI bu durumda pay yerine sadece puan katkısını gösterir.
 - Katkılar zıt işaretliyse (bazı kalemler düşmüş): `share` 0..1 dışına çıkabilir (ör. 1,2 veya −0,2). Bu matematiksel olarak doğrudur; paylar toplamı yine 1'dir. UI'da "enflasyonunun %X'i" dili sadece tüm katkılar π ile aynı işaretliyse kullanılır, aksi halde puan katkısı gösterilir.
 - Sıralama: `contributions` mutlak katkıya göre azalan, eşitlikte anahtara göre sıralanır (deterministik).
 

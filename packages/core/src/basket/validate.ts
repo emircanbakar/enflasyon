@@ -1,5 +1,6 @@
 import { EnflasyonError } from "../errors.js";
 import { MAX_BASKET_ITEMS } from "../internal/limits.js";
+import { isPlainRecord } from "../internal/object.js";
 import type { Basket } from "../types.js";
 
 /** Prototype pollution'a yol açabilecek anahtarlar. */
@@ -18,12 +19,6 @@ export function assertSafeKey(key: string): void {
       key,
     });
   }
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
-  const proto: unknown = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
 }
 
 /**

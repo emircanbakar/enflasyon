@@ -10,7 +10,9 @@ describe("public API", () => {
       "availablePeriods",
       "isEnflasyonError",
       "isPeriod",
+      "itemChange",
       "normalizeBasket",
+      "personalInflation",
     ]);
   });
 });
