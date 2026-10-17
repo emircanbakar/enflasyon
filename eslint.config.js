@@ -23,6 +23,13 @@ export default tseslint.config(
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
+    // Testlerde fixture'lardan değer okurken `!` kabul edilir; kaynak kodda yasak kalır.
+    files: ["**/test/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-non-null-assertion": "off",
+    },
+  },
+  {
     // Motor paketi: güvenlik ve bağımsızlık kuralları (docs/core.md, Bölüm 2 ve 8.5)
     files: ["packages/core/src/**/*.ts"],
     rules: {

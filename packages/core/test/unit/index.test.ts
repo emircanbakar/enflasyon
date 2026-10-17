@@ -7,12 +7,16 @@ describe("public API", () => {
     expect(Object.keys(api).sort()).toEqual([
       "EnflasyonError",
       "addMonths",
+      "annual",
       "availablePeriods",
       "isEnflasyonError",
       "isPeriod",
       "itemChange",
+      "monthly",
       "normalizeBasket",
       "personalInflation",
+      "twelveMonthAverage",
+      "yearToDate",
     ]);
   });
 });

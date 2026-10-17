@@ -54,6 +54,15 @@ export interface PersonalInflationInput {
   readonly weightsAt?: "from" | "to";
 }
 
+/**
+ * Hazır dönem fonksiyonlarının (`annual`, `monthly`, `yearToDate`,
+ * `twelveMonthAverage`) girdisi: `from`/`to` yerine tek bir hedef ay.
+ */
+export interface PeriodInflationInput extends Omit<PersonalInflationInput, "from" | "to"> {
+  /** Hedef ay; dönemin sonu. */
+  readonly at: Period;
+}
+
 /** Bir kalemin kişisel enflasyona katkısı. */
 export interface Contribution {
   readonly key: string;

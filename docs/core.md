@@ -254,7 +254,7 @@ Her kalemin katkısı `w_i × r_i`'dir; toplam enflasyondaki payı `(w_i × r_i)
 1. ~~Her kalem için ortalamalar oranı alınıp ağırlıklandırılır~~ (Σ w_i · (Ī_i,son / Ī_i,önceki − 1)). Resmi tanımla uyuşmaz.
 2. **Önce aylık kişisel endeks kurulur, sonra ortalaması alınır.** Önceki 12 ayın ilk ayı (`at − 23`) baz alınır, her ay t için kişisel endeks `P_t = Σ w_i · I_i,t / I_i,baz` hesaplanır; sonuç `ortalama(P, son 12 ay) / ortalama(P, önceki 12 ay) − 1`'dir. Bu, TÜİK'in genel endeksten 12 aylık ortalama hesaplama biçimiyle aynıdır.
 
-Dönüş tipi diğerleriyle aynıdır (`PersonalInflationResult`); `from` = `at − 23`, `to` = `at` olur ve bu iki alanın "24 aylık veri penceresi" anlamına geldiği TSDoc'ta belirtilir. Katkılar (`contributions`) bu fonksiyonda kalem bazlı ortalama değişimle hesaplanır ve toplamları yine `rate`'e eşit olacak şekilde ölçeklenir.
+Dönüş tipi diğerleriyle aynıdır (`PersonalInflationResult`); `from` = `at − 23`, `to` = `at` olur ve bu iki alanın "24 aylık veri penceresi" anlamına geldiği TSDoc'ta belirtilir. Katkılar **tam ayrıştırılır**, ölçekleme yapılmaz: kalemin önceki ve son 12 aylık ortalamaları (baza göre) `Bᵢ` ve `Aᵢ`, `B = Σ wᵢ · Bᵢ` olmak üzere `π = Σ wᵢ (Aᵢ − Bᵢ) / B` olur. Buna göre her katkıda `weight = wᵢ · Bᵢ / B` (etkin ağırlık, toplamı 1), `change = Aᵢ / Bᵢ − 1` (kalemin kendi 12 aylık ortalama değişimi) ve `contribution = weight × change` döner; katkılar toplamı tam olarak `rate`'tir. `weightsAt: "to"` ise paylar `at`'ten baz aya deflate edilir (`wᵢ ∝ sᵢ · Iᵢ,base / Iᵢ,at`).
 
 ### 4.4 Tutarı bugüne taşıma
 
@@ -294,24 +294,24 @@ k = \frac{I^{yeni}_{t_0}}{I^{eski}_{t_0}} \qquad I^{zincir}_t = k \cdot I^{eski}
 
 Public yüzey küçük tutulur: aşağıdaki tablodaki 16 fonksiyon, 1 hata sınıfı ve tipler. `src/index.ts` dışında hiçbir şey dışa açılmaz; `internal/` asla export edilmez.
 
-| Fonksiyon            | İmza (özet)                                                                                             | Döner                                                       |
-| -------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `normalizeBasket`    | `(basket: Basket) => Weights`                                                                           | Toplamı 1 olan paylar                                       |
-| `itemChange`         | `(series: IndexSeries, from: Period, to: Period) => number`                                             | Oran                                                        |
-| `personalInflation`  | `(input: PersonalInflationInput) => PersonalInflationResult`                                            | Oran + katkılar                                             |
-| `annual`             | `(input: Omit<PersonalInflationInput, "from" \| "to"> & { at: Period }) => PersonalInflationResult`     | Yıllık                                                      |
-| `monthly`            | aynı, `at` ile                                                                                          | Aylık                                                       |
-| `yearToDate`         | aynı, `at` ile                                                                                          | Yılbaşından beri                                            |
-| `twelveMonthAverage` | aynı, `at` ile                                                                                          | 12 aylık ortalama                                           |
-| `adjustAmount`       | `(amount: number, rate: number) => number`                                                              | Bugünkü tutar                                               |
-| `realWageChange`     | `(input: { wageFrom: number; wageTo: number; rate: number }) => { real: number; requiredWage: number }` | Reel değişim                                                |
-| `chainSeries`        | `(older: IndexSeries, newer: IndexSeries, overlap: Period) => IndexSeries`                              | Zincirlenmiş seri                                           |
-| `isPeriod`           | `(value: unknown) => value is Period`                                                                   | Geçerli `"YYYY-MM"` mı (URL çözme gibi dış girdiler için)   |
-| `addMonths`          | `(period: Period, months: number) => Period`                                                            | Ay eklenmiş/çıkarılmış dönem                                |
-| `availablePeriods`   | `(series: IndexSeries) => Period[]`                                                                     | Serideki dönemler, eskiden yeniye                           |
-| `roundTo`            | `(value: number, decimals: number) => number`                                                           | Yuvarlanmış sayı (Bölüm 6)                                  |
-| `toIndexSet`         | `(data: unknown) => IndexSet`                                                                           | JSON'dan gelen veriyi doğrulayıp tipli `IndexSet`'e çevirir |
-| `isEnflasyonError`   | `(e: unknown) => e is EnflasyonError`                                                                   | Type guard                                                  |
+| Fonksiyon            | İmza (özet)                                                                                                  | Döner                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `normalizeBasket`    | `(basket: Basket) => Weights`                                                                                | Toplamı 1 olan paylar                                       |
+| `itemChange`         | `(series: IndexSeries, from: Period, to: Period) => number`                                                  | Oran                                                        |
+| `personalInflation`  | `(input: PersonalInflationInput) => PersonalInflationResult`                                                 | Oran + katkılar                                             |
+| `annual`             | `(input: PeriodInflationInput) => PersonalInflationResult`; `PeriodInflationInput` = `from`/`to` yerine `at` | Yıllık                                                      |
+| `monthly`            | aynı, `at` ile                                                                                               | Aylık                                                       |
+| `yearToDate`         | aynı, `at` ile                                                                                               | Yılbaşından beri                                            |
+| `twelveMonthAverage` | aynı, `at` ile                                                                                               | 12 aylık ortalama                                           |
+| `adjustAmount`       | `(amount: number, rate: number) => number`                                                                   | Bugünkü tutar                                               |
+| `realWageChange`     | `(input: { wageFrom: number; wageTo: number; rate: number }) => { real: number; requiredWage: number }`      | Reel değişim                                                |
+| `chainSeries`        | `(older: IndexSeries, newer: IndexSeries, overlap: Period) => IndexSeries`                                   | Zincirlenmiş seri                                           |
+| `isPeriod`           | `(value: unknown) => value is Period`                                                                        | Geçerli `"YYYY-MM"` mı (URL çözme gibi dış girdiler için)   |
+| `addMonths`          | `(period: Period, months: number) => Period`                                                                 | Ay eklenmiş/çıkarılmış dönem                                |
+| `availablePeriods`   | `(series: IndexSeries) => Period[]`                                                                          | Serideki dönemler, eskiden yeniye                           |
+| `roundTo`            | `(value: number, decimals: number) => number`                                                                | Yuvarlanmış sayı (Bölüm 6)                                  |
+| `toIndexSet`         | `(data: unknown) => IndexSet`                                                                                | JSON'dan gelen veriyi doğrulayıp tipli `IndexSet`'e çevirir |
+| `isEnflasyonError`   | `(e: unknown) => e is EnflasyonError`                                                                        | Type guard                                                  |
 
 `toIndexSet`, JSON import'unun tip sorununu çözer: `import data from "./x.json"` TypeScript'te `Record<string, Record<string, number>>` olarak gelir ve anahtarlar `Period` tipine uymaz. Fonksiyon her dönem anahtarını ve değeri doğrular (`INVALID_PERIOD`, `NON_FINITE`, `NON_POSITIVE_INDEX`, `LIMIT_EXCEEDED`), dönüşü tiplidir; böylece kullanıcı `as` ile tip zorlamak zorunda kalmaz.
 

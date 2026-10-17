@@ -10,6 +10,7 @@ export type {
   IndexSet,
   Period,
   PersonalInflationInput,
+  PeriodInflationInput,
   PersonalInflationResult,
   Weights,
 } from "./types.js";
@@ -23,3 +24,4 @@ export { normalizeBasket } from "./basket/normalize.js";
 
 export { itemChange } from "./calc/change.js";
 export { personalInflation } from "./calc/personal.js";
+export { annual, monthly, twelveMonthAverage, yearToDate } from "./calc/periods.js";
