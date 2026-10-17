@@ -19,3 +19,6 @@ coverage/
 
 # Sistem
 .DS_Store
+
+# Next.js build çıktısıyla üretilir
+next-env.d.ts

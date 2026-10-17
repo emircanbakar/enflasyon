@@ -399,7 +399,7 @@ Bütçeler CI'da zorunludur; aşılırsa PR birleştirilemez. Ölçümler mobil 
 - **Lazy loading:** Detay bölümü (zaman serisi, maaş hesabı) görünüm alanına yaklaşınca yüklenir (`next/dynamic` + `IntersectionObserver`). Paylaşım ve Sentry kodu da ilk etkileşimde yüklenir.
 - **Render maliyeti:** Grafik bileşenleri `memo`; ölçekler `useMemo`; katkı listesi 13 öğe olduğu için sanallaştırma gerekmez.
 - **Dinamik rota bilinci:** `/sonuc` sayfası `generateMetadata` içinde query okuduğu için dinamik render edilir. Bu sayfanın HTML'i hafif tutulur (aynı kabuk), CDN'de kısa süreli cache'lenir. Ana sayfa `/` tamamen statik kalır; arama ve doğrudan trafik oraya gelir. Statik sayfalarda `useSearchParams` kullanan island bir `<Suspense>` sınırı içine konur; aksi halde Next.js sayfayı client-side render'a düşürür.
-- **CSP statikliği bozmaz:** nonce yerine hash kullanıldığı için güvenlik başlıkları SSG'yi etkilemez (Bölüm 10.2).
+- **CSP statikliği bozmaz:** nonce kullanılmadığı için güvenlik başlıkları SSG'yi etkilemez (Bölüm 10.2).
 - **Üçüncü taraf scriptler:** Sadece analitik (< 2 KB, `defer`). Sosyal medya widget'ı, embed, tag manager yok.
 
 ### 8.2 Gerçek kullanıcı ölçümü
@@ -464,18 +464,20 @@ Uygulamanın çalışma anında **hiçbir secret'ı yoktur**. Secret'lar (EVDS a
 
 `next.config.ts` → `headers()` ile tüm rotalara:
 
-- `Content-Security-Policy`: `default-src 'self'`; script için **hash tabanlı** politika (aşağıya bakın); `connect-src` sadece analitik ve Sentry alan adları; `img-src 'self' data:`; `frame-ancestors 'none'`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`
+- `Content-Security-Policy`: `default-src 'self'`; script için `'self' 'unsafe-inline'` + harici chunk'larda SRI (aşağıya bakın); `connect-src` sadece analitik ve Sentry alan adları; `img-src 'self' data:`; `frame-ancestors 'none'`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`
 - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin` (paylaşım linklerindeki sepet bilgisinin dış sitelere referrer olarak gitmemesi için; dış linklerde ayrıca `rel="noreferrer"`)
 - `Permissions-Policy`: kamera, mikrofon, konum vb. hepsi kapalı
 - `Cross-Origin-Opener-Policy: same-origin`
 
-**CSP kararı: nonce değil, hash.** Next.js'te middleware ile nonce üretmek, nonce her istekte farklı olduğu için **tüm sayfaları dinamik render'a zorlar**. Bu SSG'yi, CDN'den statik sunumu ve TTFB < 200 ms bütçesini bozar; bu yüzden nonce kullanılmaz. Bunun yerine:
+**CSP kararı (web Adım 2'de ölçülerek verildi): nonce yok, satır içi script'lere izin var, harici chunk'larda SRI.**
 
-- Next.js'in Subresource Integrity desteği (`experimental.sri`) açılır; build sırasında script'lerin hash'i üretilir ve `script-src 'self' 'strict-dynamic' 'sha256-…'` politikası bu hash'lerle kurulur.
-- Next.js'in sayfa içine gömdüğü inline script'lerin hash'leri build sonrası bir script ile toplanıp `headers()`'a yazılır; JSON-LD bloğu da bu listeye girer.
-- Adım 2'de (iskelet) bu kurulum doğrulanır: CSP ihlali raporu (`report-to`) development'ta sıfır olmalı. Hash yaklaşımı Next.js sürümüyle uyumsuz çıkarsa geri dönüş planı `'self'` + `'unsafe-inline'` değil, inline script'leri en aza indirip kalanların hash'ini elle tutmaktır.
+- **Nonce kullanılmaz:** Next.js'te nonce her istekte değiştiği için tüm sayfaları dinamik render'a zorlar; SSG, CDN'den statik sunum ve TTFB < 200 ms bütçesi bozulur.
+- **Hash tabanlı `script-src 'self'` uygulanamadı:** Next.js 16 App Router, statik ana sayfaya bile 3 satır içi script gömer (Turbopack başlatıcısı ve RSC payload'u `self.__next_f.push(...)`). Bunların içeriği sayfaya ve build'e özgüdür; `next.config` başlıkları ise build başında sabitlenir, yani hash'ler başlığa yazılamaz. Dinamik `/sonuc` sayfasında payload her istekte değişeceği için hash hiç mümkün değildir. Next.js dokümanındaki `experimental.sri` yalnızca harici script'lere `integrity` ekler, satır içi olanları kapsamaz.
+- **Sonuç:** `script-src 'self' 'unsafe-inline'` (Next.js'in "nonce'suz" önerisi) ve `experimental.sri` ile harici chunk'larda integrity hash'i (ölçüm: 6 harici script'in 5'inde integrity var; Turbopack'in bir chunk'ına Next.js eklemiyor). Diğer tüm direktifler sıkıdır: `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`, `connect-src` yalnızca izinli origin'ler, üretimde `unsafe-eval` yok.
+- **XSS'e karşı asıl savunma girdi tarafında:** kullanıcı girdisi HTML'e basılmaz, URL parametreleri allowlist ile çözülür (Bölüm 5.2), `dangerouslySetInnerHTML` ESLint ile yasaktır (Bölüm 10.3).
+- **İleride:** Next.js satır içi script'ler için build zamanı hash desteği getirirse veya Trusted Types ile uyumluluk doğrulanırsa politika sıkılaştırılır; karar `apps/web/lib/security-headers.ts` başındaki notta ve testlerde kayıtlıdır.
 
 Hedef: [securityheaders.com](https://securityheaders.com) ve Mozilla Observatory'de A+. Sonuç README'ye rozet olarak eklenir.
 

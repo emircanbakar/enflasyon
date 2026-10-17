@@ -17,8 +17,43 @@ env:
   LEFTHOOK: 0
 
 jobs:
+  # Hangi tarafın değiştiğini bulur; sadece etkilenen job'lar çalışır.
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read # PR'da değişen dosyaları API'den okumak için
+    outputs:
+      core: ${{ steps.filter.outputs.core }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - package.json
+              - pnpm-lock.yaml
+              - pnpm-workspace.yaml
+              - eslint.config.js
+              - .prettierrc.json
+              - .prettierignore
+              - .github/workflows/ci.yml
+            core:
+              - *shared
+              - packages/core/**
+            web:
+              - *shared
+              - packages/core/** # web, motor paketini kullanır
+              - apps/web/**
+
   core:
     name: core (Node ${{ matrix.node }})
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -49,6 +84,34 @@ jobs:
       - name: Smoke test (tarball, ESM + CJS)
         run: pnpm --filter enflasyon-core smoke
 
+  web:
+    name: web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      # Web, enflasyon-core'u workspace'ten derlenmiş haliyle (dist/) kullanır.
+      - run: pnpm --filter enflasyon-core build
+      - run: pnpm exec eslint apps/web
+      - run: pnpm --filter web test
+      # Build, typecheck'in ihtiyaç duyduğu next-env.d.ts ve .next/types dosyalarını üretir.
+      - run: pnpm --filter web build
+      - run: pnpm --filter web typecheck
+
   secrets:
     name: secret taraması
     runs-on: ubuntu-latest
@@ -69,7 +132,7 @@ jobs:
   ci-ok:
     name: ci-ok
     if: always()
-    needs: [core, secrets]
+    needs: [changes, core, web, secrets]
     runs-on: ubuntu-latest
     permissions: {}
     steps:
