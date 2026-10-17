@@ -10,6 +10,10 @@
   --color-accent: #c2410c;
   --color-official: #2f5d8a;
   --color-danger: #b42318;
+  /* Grafik serileri: dataviz doğrulayıcısından geçti (kart yüzeyinde ≥ 3:1, CVD ΔE ≥ 24). */
+  --color-series-personal: #c2410c;
+  --color-series-official: #2a78d6;
+  --color-grid: #e4e4df;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +26,9 @@
     --color-accent: #fb923c;
     --color-official: #7fb2e5;
     --color-danger: #f97066;
+    --color-series-personal: #d95926;
+    --color-series-official: #3987e5;
+    --color-grid: #262a31;
   }
 }
 

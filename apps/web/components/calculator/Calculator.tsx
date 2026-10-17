@@ -5,7 +5,9 @@ import { availablePeriods, toIndexSet } from "enflasyon-core";
 import { availableTargets, calculate } from "@/lib/calc";
 import type { CalculatorData } from "@/lib/calc";
 import { officialProfile } from "@/lib/profiles";
+import { annualSeries } from "@/lib/series";
 import { useBasket } from "@/lib/use-basket";
+import { TimeSeriesChart } from "../charts/TimeSeriesChart";
 import { ResultCard } from "../result/ResultCard";
 import { BasketForm } from "./BasketForm";
 import { PeriodPicker } from "./PeriodPicker";
@@ -38,6 +40,11 @@ export function Calculator({ data }: CalculatorProps) {
     [state, at, from, data, indices],
   );
 
+  const series = useMemo(
+    () => annualSeries(state.values, data, indices),
+    [state.values, data, indices],
+  );
+
   return (
     <div className="space-y-10">
       {urlWasInvalid && (
@@ -65,6 +72,16 @@ export function Calculator({ data }: CalculatorProps) {
         />
         <ResultCard outcome={outcome} />
       </div>
+      <section
+        aria-label="Zaman serisi"
+        className="rounded-xl border border-[var(--color-line)] bg-[var(--color-card)] p-5"
+      >
+        <TimeSeriesChart points={series} />
+        <p className="mt-3 text-sm text-[var(--color-muted)]">
+          Kişisel çizgi bugünkü sepetinin geçmiş yıllara uygulanmasıdır; o yıllardaki harcama
+          dağılımın farklı olmuş olabilir.
+        </p>
+      </section>
       <p className="text-sm text-[var(--color-muted)]">
         {data.attribution} Hesap tarayıcında yapılır; girdiğin tutarlar hiçbir sunucuya gönderilmez.
       </p>

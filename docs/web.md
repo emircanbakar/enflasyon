@@ -316,6 +316,14 @@ Grafikler hazır bir kütüphaneyle değil, React + SVG ile elle yazılır; hesa
 - `<Axis>`, `<Gridlines>`, `<Line>`, `<Bars>`, `<Tooltip>`: küçük, birleştirilebilir parçalar.
 - Renkler CSS değişkenlerinden gelir; dark mode'da otomatik değişir. "Sen" ve "resmi" serileri renk + çizgi stili (düz / kesikli) + doğrudan etiketle ayrılır; renk tek ayırt edici değildir.
 
+**Uygulama (web Adım 7):** `components/charts/` altında `ChartFrame` (başlık, veriden üretilen özet, "Tablo olarak göster"), `TimeSeriesChart` ve `ContributionBars`; hesap `lib/series.ts`'te. Ölçülen maliyet: grafikler `d3-scale`/`d3-shape`/`d3-array` dahil uygulama chunk'ına **+11,9 KB gzip** ekler (bütçe 15 KB); uygulama chunk'ı toplam 20,9 KB (island bütçesi 35 KB).
+
+- **Renkler doğrulayıcıyla seçildi**, göz kararı değil: "Sen" açık modda `#c2410c` (site vurgusu), koyu modda `#d95926`; "Resmi" `#2a78d6` / `#3987e5`. Paletin varsayılan turuncusu `#eb6834` kart yüzeyinde 2,98:1 verdiği için (3:1 altı) reddedildi. Seçilen çift iki modda da kontrast ≥ 3:1, CVD ΔE ≥ 26.
+- **Kimlik asla yalnızca renkte değil:** lejant (çizgi anahtarı), resmi seri kesikli, uç etiketleri. Seriler sonda 16 px'ten yakınsa uç etiketleri üst üste yığılmaz; lejant ve tooltip devralır.
+- **Katkı çubukları:** grup adı çubuğun üstünde kendi satırında (uzun adlar hiçbir genişlikte çubuğa binmez), çubuk 16 px, yalnızca veri ucu 4 px yuvarlak, değer ucunda; negatif katkılar sıfır çizgisinin soluna.
+- **Klavye:** zaman serisi `role="slider"`dır; ok tuşları ay, PageUp/PageDown yıl, Home/End uç değiştirir; seçili ay ve değerler `aria-valuetext` ile okunur.
+- **Gerçek tarayıcıda bulunan ve düzeltilen sorunlar:** SSR'daki varsayılan 640 px genişlik mobilde düzeni 677 px'e genişletiyordu (yatay kaydırma) → grafik kapları taşmaz, `ResizeObserver` gerçek genişliği ölçer; dar ekranda yıl etiketleri birbirine yapışıyordu → en az 40 px aralıkla seyreltilir; uç etiketi sağda kırpılıyordu → sağ boşluk 100 px. 320 px genişlikte yatay kaydırma yoktur.
+
 ### 6.3 Grafik erişilebilirliği
 
 - Her `<svg>`: `role="img"`, `aria-labelledby` ile başlık ve tek cümlelik özet ("Senin enflasyonun son 12 ayda %41'den %48'e çıktı; resmi rakam %32 civarında kaldı."). Özet, veriden otomatik üretilir.

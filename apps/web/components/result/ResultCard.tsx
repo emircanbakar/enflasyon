@@ -1,15 +1,16 @@
 "use client";
 
 import type { CalcOutcome } from "@/lib/calc";
-import { compareRates, formatMonth, formatPercent, formatPoints } from "@/lib/format";
+import { ContributionBars } from "@/components/charts/ContributionBars";
+import { compareRates, formatMonth, formatPercent } from "@/lib/format";
 
 interface ResultCardProps {
   readonly outcome: CalcOutcome;
 }
 
 /**
- * Sonuç kartı (docs/web.md, Bölüm 2.2 adım 3). Grafik bileşenleri ayrı adımda
- * gelir; katkı dökümü burada erişilebilir bir liste ve CSS çubuklarıyla gösterilir.
+ * Sonuç kartı (docs/web.md, Bölüm 2.2 adım 3): büyük rakam, resmi rakamla
+ * karşılaştırma ve katkı dökümü grafiği (tablo görünümüyle).
  * Özet cümle `aria-live="polite"` bölgesinde ekran okuyucuya duyurulur.
  */
 export function ResultCard({ outcome }: ResultCardProps) {
@@ -45,8 +46,8 @@ function Summary({ outcome }: { readonly outcome: Ok }) {
   const { points, direction } = compareRates(outcome.personal, outcome.official);
   const comparison =
     direction === "eşit"
-      ? "Resmi rakamla aynı."
-      : `Resmi rakam senden ${points} ${direction === "yüksek" ? "düşük" : "yüksek"}.`;
+      ? "seninkiyle aynı."
+      : `senden ${points} ${direction === "yüksek" ? "düşük" : "yüksek"}.`;
   return (
     <div className="space-y-2">
       <p className="text-sm text-[var(--color-muted)]">
@@ -54,7 +55,7 @@ function Summary({ outcome }: { readonly outcome: Ok }) {
       </p>
       <p className="text-lg">
         Senin enflasyonun{" "}
-        <strong className="block text-5xl font-semibold tracking-tight text-[var(--color-accent)] tabular-nums">
+        <strong className="block text-5xl font-semibold tracking-tight text-[var(--color-accent)]">
           {formatPercent(outcome.personal)}
         </strong>
       </p>
@@ -75,34 +76,16 @@ function Summary({ outcome }: { readonly outcome: Ok }) {
 }
 
 function Contributions({ outcome }: { readonly outcome: Ok }) {
-  const max = Math.max(...outcome.contributions.map((c) => Math.abs(c.contribution)), 1e-12);
   const top = outcome.contributions[0];
+  const summary =
+    outcome.contributions.length === 1
+      ? `Enflasyonunun tamamı ${top?.label ?? "tek"} grubundan geliyor.`
+      : outcome.sharesMeaningful && top?.share != null
+        ? `En büyük pay ${top.label} grubunda: enflasyonunun ${formatPercent(top.share, 0)} kadarı buradan geliyor.`
+        : "Bazı gruplarda fiyatlar düştü; katkılar puan olarak gösteriliyor.";
   return (
-    <div className="mt-6 space-y-3">
-      <h3 className="font-medium">Enflasyonun nereden geliyor?</h3>
-      {outcome.sharesMeaningful && top?.share != null && outcome.contributions.length > 1 && (
-        <p className="text-sm text-[var(--color-muted)]">
-          En büyük pay: <strong className="text-[var(--color-ink)]">{top.label}</strong> (
-          {formatPercent(top.share, 0)})
-        </p>
-      )}
-      <ul className="space-y-2">
-        {outcome.contributions.map((c) => (
-          <li key={c.key} className="grid grid-cols-[8rem_1fr_auto] items-center gap-3 text-sm">
-            <span className="truncate">{c.label}</span>
-            <span aria-hidden="true" className="h-2 rounded-full bg-[var(--color-line)]">
-              <span
-                className="block h-2 rounded-full bg-[var(--color-accent)]"
-                style={{ width: `${String((Math.abs(c.contribution) / max) * 100)}%` }}
-              />
-            </span>
-            <span className="tabular-nums text-[var(--color-muted)]">
-              {c.contribution < 0 ? "−" : ""}
-              {formatPoints(c.contribution)} · grup {formatPercent(c.change)}
-            </span>
-          </li>
-        ))}
-      </ul>
+    <div className="mt-6">
+      <ContributionBars contributions={outcome.contributions} summary={summary} />
     </div>
   );
 }
