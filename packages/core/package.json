@@ -1,0 +1,58 @@
+{
+  "name": "enflasyon-core",
+  "version": "0.0.0",
+  "description": "Harcama sepetinden kişisel enflasyon hesaplayan, sıfır bağımlılıklı TypeScript kütüphanesi",
+  "keywords": [
+    "enflasyon",
+    "inflation",
+    "cpi",
+    "tüfe",
+    "laspeyres"
+  ],
+  "license": "MIT",
+  "author": "Emircan Bakar",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emircanbakar/enflasyon.git",
+    "directory": "packages/core"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.11",
+    "fast-check": "^4.10.2",
+    "tsup": "^8.5.1",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.11"
+  }
+}

@@ -1,0 +1,21 @@
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{js,ts,tsx,json,md,yml,yaml}"
+      run: pnpm exec prettier --check {staged_files}
+    lint:
+      glob: "*.{js,ts,tsx}"
+      run: pnpm exec eslint {staged_files}
+    secrets:
+      run: |
+        if command -v gitleaks >/dev/null 2>&1; then
+          gitleaks git --pre-commit --staged --redact --no-banner
+        else
+          echo "gitleaks kurulu değil; yerel tarama atlandı (CI'da çalışır)"
+        fi
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}

@@ -4,10 +4,10 @@
 
 Harcama dağılımına göre **kişisel enflasyonunu** hesaplayan açık kaynak bir proje. İki parçadan oluşur:
 
-| Parça | Klasör | Ne |
-| --- | --- | --- |
+| Parça              | Klasör          | Ne                                                                                                           |
+| ------------------ | --------------- | ------------------------------------------------------------------------------------------------------------ |
 | **enflasyon-core** | `packages/core` | Sepet ve fiyat endekslerinden kişisel enflasyonu hesaplayan, sıfır bağımlılıklı TypeScript kütüphanesi (npm) |
-| **Web uygulaması** | `apps/web` | Hesabın tamamen tarayıcıda yapıldığı, verinin hiçbir yere gönderilmediği Next.js uygulaması |
+| **Web uygulaması** | `apps/web`      | Hesabın tamamen tarayıcıda yapıldığı, verinin hiçbir yere gönderilmediği Next.js uygulaması                  |
 
 > **Durum:** Tasarım aşaması. Teknik dokümanlar hazır; geliştirme yol haritasına göre ilerliyor.
 

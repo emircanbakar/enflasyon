@@ -60,8 +60,7 @@ enflasyon/
 │   ├── dependabot.yml
 │   └── CODEOWNERS
 ├── package.json              # private, sadece workspace script'leri
-├── pnpm-workspace.yaml       # packages/*, apps/*; minimumReleaseAge, onlyBuiltDependencies
-├── .npmrc                    # sadece registry ayarları, token yok
+├── pnpm-workspace.yaml       # packages/*, apps/*; minimumReleaseAge, allowBuilds
 ├── eslint.config.js · .prettierrc · lefthook.yml · commitlint.config.js
 ├── SECURITY.md
 ├── LICENSE                   # MIT
@@ -97,17 +96,17 @@ packages/core/
 └── …                         # config dosyaları (yukarıda)
 ```
 
-| Araç | Görev | Neden |
-| --- | --- | --- |
-| pnpm | Paket yöneticisi | Hızlı, katı bağımlılık çözümü, lockfile güvenilir |
-| TypeScript (strict) | Dil | `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` açık |
-| tsup | Build | ESM + CJS + `.d.ts` tek komutla |
-| Vitest | Test | Hızlı, TS desteği yerleşik, coverage dahili |
-| fast-check | Property-based test | Rastgele girdiyle matematiksel kuralları doğrular |
-| Changesets | Sürüm ve CHANGELOG | Semver kararı PR'da verilir, yayın otomatik |
-| size-limit | Boyut bütçesi | 5 KB sınırı aşılırsa CI kırılır |
-| publint + @arethetypeswrong/cli | Paket doğrulama | `exports` ve tip çözümlemesinin her ortamda doğru olduğunu kontrol eder |
-| ESLint (flat config) + Prettier | Stil | `typescript-eslint` strict-type-checked preset |
+| Araç                            | Görev               | Neden                                                                                                                                    |
+| ------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| pnpm                            | Paket yöneticisi    | Hızlı, katı bağımlılık çözümü, lockfile güvenilir                                                                                        |
+| TypeScript 6.0 (strict)         | Dil                 | TS 7 (native) `typescript-eslint` desteği gelene kadar beklenir; `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` açık |
+| tsup                            | Build               | ESM + CJS + `.d.ts` tek komutla                                                                                                          |
+| Vitest                          | Test                | Hızlı, TS desteği yerleşik, coverage dahili                                                                                              |
+| fast-check                      | Property-based test | Rastgele girdiyle matematiksel kuralları doğrular                                                                                        |
+| Changesets                      | Sürüm ve CHANGELOG  | Semver kararı PR'da verilir, yayın otomatik                                                                                              |
+| size-limit                      | Boyut bütçesi       | 5 KB sınırı aşılırsa CI kırılır                                                                                                          |
+| publint + @arethetypeswrong/cli | Paket doğrulama     | `exports` ve tip çözümlemesinin her ortamda doğru olduğunu kontrol eder                                                                  |
+| ESLint (flat config) + Prettier | Stil                | `typescript-eslint` strict-type-checked preset                                                                                           |
 
 **package.json kritik alanları:**
 
@@ -178,9 +177,9 @@ export interface PersonalInflationInput {
 
 export interface Contribution {
   readonly key: string;
-  readonly weight: number;      // 0..1
-  readonly change: number;      // kalemin kendi değişimi, oran (0.45 = %45)
-  readonly contribution: number;// weight × change, puan olarak oran
+  readonly weight: number; // 0..1
+  readonly change: number; // kalemin kendi değişimi, oran (0.45 = %45)
+  readonly contribution: number; // weight × change, puan olarak oran
   /** Toplam enflasyondaki payı: contribution / rate. rate = 0 iken null (Bölüm 4.2).
    *  Katkılar zıt işaretliyse 0..1 dışına çıkabilir. */
   readonly share: number | null;
@@ -188,7 +187,7 @@ export interface Contribution {
 }
 
 export interface PersonalInflationResult {
-  readonly rate: number;                 // oran: 0.52 = %52
+  readonly rate: number; // oran: 0.52 = %52
   readonly from: Period;
   readonly to: Period;
   readonly contributions: readonly Contribution[]; // katkıya göre azalan sıralı
@@ -210,7 +209,7 @@ Kişisel enflasyon, sabit ağırlıklı **Laspeyres** yaklaşımıyla hesaplanı
 
 **TÜİK ile farkı:** TÜİK de Laspeyres kullanır ama **zincirleme** biçimde: ağırlıklar her yıl güncellenir ve endeks her Aralık'ta bağlanır. Yıl içindeki bir dönem için (`from` = önceki Aralık) aynı ağırlıklarla paketin sonucu resmi rakamla tutarlı çıkar. İki takvim yılına yayılan dönemlerde (yıllık enflasyon dahil) ise tek sabit ağırlık seti resmi zincirden bir miktar sapar; sapma yüksek enflasyonda büyür. Golden test ve web'deki çapraz kontrol bu yüzden yıl içi dönem üzerinden yapılır (Bölüm 7.3).
 
-**Ağırlıkların dönemi:** Kullanıcı genelde sepetini *bugünkü* harcamasıyla girer, oysa formül payları `from` dönemine ait sayar. Kısa dönemde (1 yıl) bu fark küçüktür; çok yıllık hesaplarda (5 yıllık grafik) bugünkü sepet geçmişe uygulanmış olur. `PersonalInflationInput`'a opsiyonel `weightsAt?: "from" | "to"` alanı eklenir (varsayılan `"from"`). `"to"` seçilirse paylar önce geriye deflate edilir:
+**Ağırlıkların dönemi:** Kullanıcı genelde sepetini _bugünkü_ harcamasıyla girer, oysa formül payları `from` dönemine ait sayar. Kısa dönemde (1 yıl) bu fark küçüktür; çok yıllık hesaplarda (5 yıllık grafik) bugünkü sepet geçmişe uygulanmış olur. `PersonalInflationInput`'a opsiyonel `weightsAt?: "from" | "to"` alanı eklenir (varsayılan `"from"`). `"to"` seçilirse paylar önce geriye deflate edilir:
 
 ```latex
 w_i^{from} = \frac{s_i / (1 + r_i)}{\sum_j s_j / (1 + r_j)}
@@ -242,13 +241,13 @@ Her kalemin katkısı `w_i × r_i`'dir; toplam enflasyondaki payı `(w_i × r_i)
 
 ### 4.3 Hazır dönem fonksiyonları
 
-| Fonksiyon | Tanım | from / to |
-| --- | --- | --- |
-| Yıllık | Aynı ayın bir önceki yıla göre değişimi | `to` = seçilen ay, `from` = 12 ay öncesi |
-| Aylık | Bir önceki aya göre değişim | `from` = 1 ay öncesi |
-| Kümülatif | Kullanıcının seçtiği iki ay arası | serbest |
-| Yılbaşından beri | Önceki Aralık'a göre değişim | `from` = önceki yılın 12. ayı |
-| 12 aylık ortalama | Son 12 ay endeks ortalaması / önceki 12 ay ortalaması − 1 | 24 ay veri gerekir |
+| Fonksiyon         | Tanım                                                     | from / to                                |
+| ----------------- | --------------------------------------------------------- | ---------------------------------------- |
+| Yıllık            | Aynı ayın bir önceki yıla göre değişimi                   | `to` = seçilen ay, `from` = 12 ay öncesi |
+| Aylık             | Bir önceki aya göre değişim                               | `from` = 1 ay öncesi                     |
+| Kümülatif         | Kullanıcının seçtiği iki ay arası                         | serbest                                  |
+| Yılbaşından beri  | Önceki Aralık'a göre değişim                              | `from` = önceki yılın 12. ayı            |
+| 12 aylık ortalama | Son 12 ay endeks ortalaması / önceki 12 ay ortalaması − 1 | 24 ay veri gerekir                       |
 
 **12 aylık ortalamanın sepete uygulanışı.** İki yol farklı sonuç verir; paket **ikincisini** kullanır:
 
@@ -295,22 +294,22 @@ k = \frac{I^{yeni}_{t_0}}{I^{eski}_{t_0}} \qquad I^{zincir}_t = k \cdot I^{eski}
 
 Public yüzey küçük tutulur: aşağıdaki tablodaki 15 fonksiyon, 1 hata sınıfı ve tipler. `src/index.ts` dışında hiçbir şey dışa açılmaz; `internal/` asla export edilmez.
 
-| Fonksiyon | İmza (özet) | Döner |
-| --- | --- | --- |
-| `normalizeBasket` | `(basket: Basket) => Weights` | Toplamı 1 olan paylar |
-| `itemChange` | `(series: IndexSeries, from: Period, to: Period) => number` | Oran |
-| `personalInflation` | `(input: PersonalInflationInput) => PersonalInflationResult` | Oran + katkılar |
-| `annual` | `(input: Omit<PersonalInflationInput, "from" \| "to"> & { at: Period }) => PersonalInflationResult` | Yıllık |
-| `monthly` | aynı, `at` ile | Aylık |
-| `yearToDate` | aynı, `at` ile | Yılbaşından beri |
-| `twelveMonthAverage` | aynı, `at` ile | 12 aylık ortalama |
-| `adjustAmount` | `(amount: number, rate: number) => number` | Bugünkü tutar |
-| `realWageChange` | `(input: { wageFrom: number; wageTo: number; rate: number }) => { real: number; requiredWage: number }` | Reel değişim |
-| `chainSeries` | `(older: IndexSeries, newer: IndexSeries, overlap: Period) => IndexSeries` | Zincirlenmiş seri |
-| `addMonths` / `availablePeriods` | Yardımcı dönem fonksiyonları | `Period` / `Period[]` |
-| `roundTo` | `(value: number, decimals: number) => number` | Yuvarlanmış sayı (Bölüm 6) |
-| `toIndexSet` | `(data: unknown) => IndexSet` | JSON'dan gelen veriyi doğrulayıp tipli `IndexSet`'e çevirir |
-| `isEnflasyonError` | `(e: unknown) => e is EnflasyonError` | Type guard |
+| Fonksiyon                        | İmza (özet)                                                                                             | Döner                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `normalizeBasket`                | `(basket: Basket) => Weights`                                                                           | Toplamı 1 olan paylar                                       |
+| `itemChange`                     | `(series: IndexSeries, from: Period, to: Period) => number`                                             | Oran                                                        |
+| `personalInflation`              | `(input: PersonalInflationInput) => PersonalInflationResult`                                            | Oran + katkılar                                             |
+| `annual`                         | `(input: Omit<PersonalInflationInput, "from" \| "to"> & { at: Period }) => PersonalInflationResult`     | Yıllık                                                      |
+| `monthly`                        | aynı, `at` ile                                                                                          | Aylık                                                       |
+| `yearToDate`                     | aynı, `at` ile                                                                                          | Yılbaşından beri                                            |
+| `twelveMonthAverage`             | aynı, `at` ile                                                                                          | 12 aylık ortalama                                           |
+| `adjustAmount`                   | `(amount: number, rate: number) => number`                                                              | Bugünkü tutar                                               |
+| `realWageChange`                 | `(input: { wageFrom: number; wageTo: number; rate: number }) => { real: number; requiredWage: number }` | Reel değişim                                                |
+| `chainSeries`                    | `(older: IndexSeries, newer: IndexSeries, overlap: Period) => IndexSeries`                              | Zincirlenmiş seri                                           |
+| `addMonths` / `availablePeriods` | Yardımcı dönem fonksiyonları                                                                            | `Period` / `Period[]`                                       |
+| `roundTo`                        | `(value: number, decimals: number) => number`                                                           | Yuvarlanmış sayı (Bölüm 6)                                  |
+| `toIndexSet`                     | `(data: unknown) => IndexSet`                                                                           | JSON'dan gelen veriyi doğrulayıp tipli `IndexSet`'e çevirir |
+| `isEnflasyonError`               | `(e: unknown) => e is EnflasyonError`                                                                   | Type guard                                                  |
 
 `toIndexSet`, JSON import'unun tip sorununu çözer: `import data from "./x.json"` TypeScript'te `Record<string, Record<string, number>>` olarak gelir ve anahtarlar `Period` tipine uymaz. Fonksiyon her dönem anahtarını ve değeri doğrular (`INVALID_PERIOD`, `NON_FINITE`, `NON_POSITIVE_INDEX`, `LIMIT_EXCEEDED`), dönüşü tiplidir; böylece kullanıcı `as` ile tip zorlamak zorunda kalmaz.
 
@@ -320,18 +319,18 @@ Tek bir hata sınıfı ve makine tarafından okunabilir kodlar kullanılır. UI,
 
 ```ts
 export type EnflasyonErrorCode =
-  | "EMPTY_BASKET"          // sepet boş veya tüm değerler 0
-  | "NEGATIVE_VALUE"        // sepette negatif tutar/pay
-  | "NON_FINITE"            // NaN, Infinity
-  | "SHARES_NOT_ONE"        // share modunda toplam 1 değil (tolerans 1e-6)
-  | "INVALID_PERIOD"        // "2026-13", "26-01" vb.
-  | "PERIOD_ORDER"          // from > to
-  | "MISSING_SERIES"        // sepetteki kalemin serisi yok
-  | "MISSING_PERIOD"        // seride ilgili ay yok
-  | "NON_POSITIVE_INDEX"    // endeks değeri ≤ 0
-  | "NO_OVERLAP"            // zincirlemede ortak dönem yok
-  | "INVALID_KEY"           // __proto__, constructor, prototype veya boş anahtar
-  | "LIMIT_EXCEEDED";       // sepette > 500 kalem veya seride > 1200 ay
+  | "EMPTY_BASKET" // sepet boş veya tüm değerler 0
+  | "NEGATIVE_VALUE" // sepette negatif tutar/pay
+  | "NON_FINITE" // NaN, Infinity
+  | "SHARES_NOT_ONE" // share modunda toplam 1 değil (tolerans 1e-6)
+  | "INVALID_PERIOD" // "2026-13", "26-01" vb.
+  | "PERIOD_ORDER" // from > to
+  | "MISSING_SERIES" // sepetteki kalemin serisi yok
+  | "MISSING_PERIOD" // seride ilgili ay yok
+  | "NON_POSITIVE_INDEX" // endeks değeri ≤ 0
+  | "NO_OVERLAP" // zincirlemede ortak dönem yok
+  | "INVALID_KEY" // __proto__, constructor, prototype veya boş anahtar
+  | "LIMIT_EXCEEDED"; // sepette > 500 kalem veya seride > 1200 ay
 
 export class EnflasyonError extends Error {
   readonly code: EnflasyonErrorCode;
@@ -355,8 +354,8 @@ const result = annual({
   at: "2026-09",
 });
 
-result.rate;            // 0.4812  → %48,12
-result.contributions[0] // { key: "konut", weight: 0.595, change: 0.62, ... }
+result.rate; // 0.4812  → %48,12
+result.contributions[0]; // { key: "konut", weight: 0.595, change: 0.62, ... }
 
 adjustAmount(20000, result.rate); // 29624
 ```
@@ -401,15 +400,15 @@ Her fonksiyon için mutlu yol, sınır durumları ve her hata kodu en az bir kez
 
 Rastgele sepet ve seriler üretilir; şu kurallar her seferinde doğru olmalıdır:
 
-| Kural | Neden önemli |
-| --- | --- |
-| `min(r_i) ≤ π ≤ max(r_i)` | Ağırlıklı ortalama, uçların dışına çıkamaz |
-| `Σ contribution === π` (tolerans 1e-12) | Katkı dökümü toplamla tutarlı |
-| Tüm kalemler aynı oranla artarsa π o orana eşit | Ağırlıkların sonucu bozmadığını kanıtlar |
-| Sepeti sabit bir katsayıyla ölçeklemek π'yi değiştirmez | Tutar modu ile pay modu tutarlı |
-| Obje anahtar sırası değişince sonuç bit düzeyinde aynı | Deterministik toplama |
-| `chainSeries` sonrası örtüşme sonrası değişimler korunur | Zincirleme veri bozmaz |
-| Normalize edilmiş payların toplamı 1, hepsi ≥ 0 | Temel değişmez |
+| Kural                                                    | Neden önemli                               |
+| -------------------------------------------------------- | ------------------------------------------ |
+| `min(r_i) ≤ π ≤ max(r_i)`                                | Ağırlıklı ortalama, uçların dışına çıkamaz |
+| `Σ contribution === π` (tolerans 1e-12)                  | Katkı dökümü toplamla tutarlı              |
+| Tüm kalemler aynı oranla artarsa π o orana eşit          | Ağırlıkların sonucu bozmadığını kanıtlar   |
+| Sepeti sabit bir katsayıyla ölçeklemek π'yi değiştirmez  | Tutar modu ile pay modu tutarlı            |
+| Obje anahtar sırası değişince sonuç bit düzeyinde aynı   | Deterministik toplama                      |
+| `chainSeries` sonrası örtüşme sonrası değişimler korunur | Zincirleme veri bozmaz                     |
+| Normalize edilmiş payların toplamı 1, hepsi ≥ 0          | Temel değişmez                             |
 
 ### 7.3 Golden testler (`test/golden`)
 
@@ -434,7 +433,7 @@ Bu paketin **çalışma anında hiçbir secret'a ihtiyacı yoktur**: ağ isteği
 
 ### 8.1 Secret sızıntısını engelleme
 
-- **`.gitignore`** baştan şunları içerir: `.env`, `.env.*` (`!.env.example` hariç), `*.pem`, `*.key`, `coverage/`, `dist/`, `node_modules/`, `.DS_Store`. Repodaki `.npmrc` **commit'lenir** (içinde token yoktur, sadece ayar vardır); kişisel token'lar sadece `~/.npmrc`'de durur ve o dosya zaten repo dışındadır.
+- **`.gitignore`** baştan şunları içerir: `.env`, `.env.*` (`!.env.example` hariç), `*.pem`, `*.key`, `coverage/`, `dist/`, `node_modules/`, `.DS_Store`. Repoda `.npmrc` yoktur; kişisel token'lar sadece `~/.npmrc`'de durur ve o dosya zaten repo dışındadır.
 - **GitHub Secret scanning + Push protection** repo ayarlarından açılır. Push protection, bilinen formatta bir anahtar içeren push'u sunucu tarafında reddeder.
 - **gitleaks** hem pre-commit hook'u (yerel, `lefthook` ile) hem de CI adımı olarak çalışır. Yerel hook atlanırsa CI yakalar.
 - **İlk commit'ten önce** `git log` geçmişi temiz olmalı. Bir secret yanlışlıkla commit'lenirse: önce anahtar iptal edilir (rotate), sonra geçmiş temizlenir. Sıra önemli: public repoda bir an bile görünen anahtar ele geçmiş sayılır.
@@ -456,22 +455,22 @@ Kurulum:
 
 - **Sıfır runtime bağımlılık** en büyük korumadır; kullanıcıya hiçbir üçüncü taraf kod gitmez.
 - devDependencies için: `pnpm install --frozen-lockfile` CI'da zorunlu; lockfile değişiklikleri PR'da incelenir.
-- pnpm ayarları (pnpm 10+): `pnpm-workspace.yaml` içinde `minimumReleaseAge` (dakika cinsinden; ör. `1440` = 1 gün. Yeni yayınlanmış, henüz doğrulanmamış sürümleri bekletir; ele geçirilmiş paket saldırılarına karşı) ve `onlyBuiltDependencies` (build script'i çalışmasına izin verilen paketlerin listesi). pnpm 10 bağımlılıkların lifecycle script'lerini zaten varsayılan olarak çalıştırmaz; `ignore-scripts=true` ayrıca gerekmez. `.npmrc` sadece registry ile ilgili ayarlar için kalır.
+- pnpm ayarları (pnpm 12): `pnpm-workspace.yaml` içinde `minimumReleaseAge: 10080` (dakika; 7 gün. Yeni yayınlanmış, henüz doğrulanmamış sürümleri bekletir; ele geçirilmiş paket saldırılarına karşı) ve `allowBuilds` (kurulumda script çalıştırmasına izin verilen paketler: sadece `esbuild` ve `lefthook`). pnpm bağımlılıkların lifecycle script'lerini varsayılan olarak çalıştırmaz; yeni bir paket script isterse kurulum durur ve `pnpm approve-builds <paket>` ile bilinçli olarak onaylanır.
 - **Dependabot**: haftalık, gruplanmış devDependency PR'ları + GitHub Actions sürümleri.
 - **GitHub Actions**: tüm üçüncü taraf action'lar **commit SHA'ya pinlenir** (`actions/checkout@<sha> # v4`), tag'e değil. Her workflow en üstte `permissions: {}` veya `contents: read` ile başlar; yetki sadece ihtiyaç olan job'a verilir.
 - **CodeQL** (JavaScript/TypeScript) ve **OpenSSF Scorecard** workflow'ları eklenir; Scorecard rozeti README'ye konur.
 
 ### 8.4 Repo ayarları (GitHub)
 
-| Ayar | Değer |
-| --- | --- |
-| Branch protection (`main`) | PR zorunlu, CI geçmeli, force push kapalı, linear history |
-| Signed commits | Zorunlu (SSH signing key ile; Bölüm 9.1). Bot commit'leri de imzalı olmalı (Bölüm 10.2) |
-| Merge yöntemi | Rebase merge. **Doğrulanacak:** "Require signed commits" açıkken GitHub rebase merge'e izin veriyor mu; izin vermiyorsa merge commit veya squash'a geçilir (adım 3'te test edilir) |
-| Actions → Fork PR'ları | "Require approval for all outside collaborators" |
-| Actions → Workflow permissions | Varsayılan **read-only**; "Allow GitHub Actions to create and approve pull requests" **kapalı**. Version Packages PR'ı `GITHUB_TOKEN` ile değil, GitHub App token'ı ile açılır (Bölüm 10.2) |
-| Environment `npm` | Sadece `main` branch'inden deploy, isteğe bağlı manuel onay |
-| Private vulnerability reporting | Açık; `SECURITY.md` bu kanala yönlendirir |
+| Ayar                            | Değer                                                                                                                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Branch protection (`main`)      | PR zorunlu, CI geçmeli, force push kapalı, linear history                                                                                                                                   |
+| Signed commits                  | Zorunlu (SSH signing key ile; Bölüm 9.1). Bot commit'leri de imzalı olmalı (Bölüm 10.2)                                                                                                     |
+| Merge yöntemi                   | Rebase merge. **Doğrulanacak:** "Require signed commits" açıkken GitHub rebase merge'e izin veriyor mu; izin vermiyorsa merge commit veya squash'a geçilir (adım 3'te test edilir)          |
+| Actions → Fork PR'ları          | "Require approval for all outside collaborators"                                                                                                                                            |
+| Actions → Workflow permissions  | Varsayılan **read-only**; "Allow GitHub Actions to create and approve pull requests" **kapalı**. Version Packages PR'ı `GITHUB_TOKEN` ile değil, GitHub App token'ı ile açılır (Bölüm 10.2) |
+| Environment `npm`               | Sadece `main` branch'inden deploy, isteğe bağlı manuel onay                                                                                                                                 |
+| Private vulnerability reporting | Açık; `SECURITY.md` bu kanala yönlendirir                                                                                                                                                   |
 
 ### 8.5 Kod düzeyinde
 
@@ -547,24 +546,24 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm
     permissions:
-      contents: write        # tag ve release
-      id-token: write        # npm trusted publishing (OIDC)
+      contents: write # tag ve release
+      id-token: write # npm trusted publishing (OIDC)
     steps:
-      - uses: actions/create-github-app-token@<sha>  # v2
+      - uses: actions/create-github-app-token@<sha> # v2
         id: app
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@<sha>        # v4
+      - uses: actions/checkout@<sha> # v4
         with: { token: "${{ steps.app.outputs.token }}" }
-      - uses: pnpm/action-setup@<sha>       # v4
-      - uses: actions/setup-node@<sha>      # v4
+      - uses: pnpm/action-setup@<sha> # v4
+      - uses: actions/setup-node@<sha> # v4
         with: { node-version: 24, registry-url: "https://registry.npmjs.org" }
         # Node 24 npm 11 ile gelir; trusted publishing için ≥ 11.5.1 yeterli,
         # "npm install -g npm@latest" gibi pinlenmemiş kurulum yapılmaz
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter enflasyon-core build && pnpm --filter enflasyon-core test
-      - uses: changesets/action@<sha>       # v1
+      - uses: changesets/action@<sha> # v1
         with:
           publish: pnpm changeset publish
           commitMode: github-api
@@ -592,7 +591,7 @@ Rozetler (npm sürüm, CI, coverage, bundle size, provenance, OpenSSF Scorecard)
 Her adım ayrı bir branch ve PR'dır; adım bitmeden diğerine geçilmez. Her adımın sonunda CI yeşil olmalıdır.
 
 1. **Hazırlık (elle):** git kimliği + SSH imza, GitHub e-posta gizliliği, npm 2FA, paket adı kontrolü. Repo (`emircanbakar/enflasyon`) oluşturuldu; public'e alınır ve secret scanning + push protection + private vulnerability reporting açılır.
-2. **İskelet (monorepo):** kökte `package.json` (private), `pnpm-workspace.yaml`, ESLint/Prettier, `.gitignore`, `.npmrc`, `lefthook` + commitlint + gitleaks, `LICENSE`, `SECURITY.md`, `.changeset/` (web ignore). `packages/core` içinde `package.json`, `tsconfig` (strict), `tsup`, `vitest`, boş `src/index.ts`. `apps/web` bu adımda sadece boş klasördür.
+2. **İskelet (monorepo):** kökte `package.json` (private), `pnpm-workspace.yaml`, ESLint/Prettier, `.gitignore`, `lefthook` + commitlint + gitleaks, `LICENSE`, `SECURITY.md`, `.changeset/` (web ignore). `packages/core` içinde `package.json`, `tsconfig` (strict), `tsup`, `vitest`, boş `src/index.ts`. `apps/web` bu adımda sadece boş klasördür.
 3. **CI:** `ci.yml` (lint, typecheck, test, build). Branch protection açılır.
 4. **Tipler ve hatalar:** `types.ts`, `errors.ts`, dönem yardımcıları + testleri.
 5. **Sepet:** `normalizeBasket` + doğrulama + unit/property testleri.

@@ -1,0 +1,11 @@
+packages:
+  - packages/*
+  - apps/*
+
+# Yeni yayınlanan sürümleri 7 gün beklet (ele geçirilmiş paket saldırılarına karşı)
+minimumReleaseAge: 10080
+
+# Kurulumda script çalıştırmasına izin verilen bağımlılıklar (varsayılan: hiçbiri)
+allowBuilds:
+  esbuild: true
+  lefthook: true

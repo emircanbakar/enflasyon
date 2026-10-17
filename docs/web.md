@@ -42,15 +42,15 @@ Uygulama tek bir ana sayfada, kaydırılarak ilerleyen üç bölümden oluşur. 
 
 ### 2.1 Rotalar
 
-| Rota | İçerik | Render |
-| --- | --- | --- |
-| `/` | Hesaplayıcı (giriş → sonuç → detay) | Statik kabuk + client island |
-| `/sonuc?…#…` | Aynı sayfa, URL'deki sepetle dolu açılır; paylaşılan linkler buraya gelir. Query'de sadece yüzde dağılımı, fragment'te TL tutarları (Bölüm 5.1) | Dinamik (query'den `generateMetadata`), hafif kabuk; OG görseli dinamik |
-| `/nasil-hesapliyoruz` | Metodoloji, formüller, veri kaynağı, sınırlamalar | Statik (MDX) |
-| `/enflasyon/[yil]` | Yıl bazlı resmi veri özet sayfaları (SEO) | SSG, build'de üretilir |
-| `/profil/[slug]` | "Kiracı aile", "öğrenci" gibi hazır profil sonuçları (SEO) | SSG |
-| `/gizlilik` | Gizlilik açıklaması | Statik |
-| `/api/og` | Paylaşım görseli üretimi | Edge route handler |
+| Rota                  | İçerik                                                                                                                                          | Render                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `/`                   | Hesaplayıcı (giriş → sonuç → detay)                                                                                                             | Statik kabuk + client island                                            |
+| `/sonuc?…#…`          | Aynı sayfa, URL'deki sepetle dolu açılır; paylaşılan linkler buraya gelir. Query'de sadece yüzde dağılımı, fragment'te TL tutarları (Bölüm 5.1) | Dinamik (query'den `generateMetadata`), hafif kabuk; OG görseli dinamik |
+| `/nasil-hesapliyoruz` | Metodoloji, formüller, veri kaynağı, sınırlamalar                                                                                               | Statik (MDX)                                                            |
+| `/enflasyon/[yil]`    | Yıl bazlı resmi veri özet sayfaları (SEO)                                                                                                       | SSG, build'de üretilir                                                  |
+| `/profil/[slug]`      | "Kiracı aile", "öğrenci" gibi hazır profil sonuçları (SEO)                                                                                      | SSG                                                                     |
+| `/gizlilik`           | Gizlilik açıklaması                                                                                                                             | Statik                                                                  |
+| `/api/og`             | Paylaşım görseli üretimi                                                                                                                        | Edge route handler                                                      |
 
 ### 2.2 Ana akış
 
@@ -74,14 +74,14 @@ Uygulama tek bir ana sayfada, kaydırılarak ilerleyen üç bölümden oluşur. 
 
 ### 2.3 Boş, hata ve sınır durumları
 
-| Durum | Davranış |
-| --- | --- |
-| Sepet tamamen boş | Sonuç alanı iskelet halinde, "Bir kalem gir" ipucu |
-| Sadece tek kalem dolu | Hesap yapılır, "tek kalemle sonuç o kalemin enflasyonudur" notu |
-| URL'deki sepet bozuk / eksik | Sessizce varsayılana dönülür, üstte kapanabilir bilgi bandı |
-| Seçilen dönem için veri yok | Dönem seçicide o aylar devre dışı; en son veri ayı varsayılan |
-| Negatif / harf girişi | `inputmode="decimal"`, girişte temizlenir, alan altında hata metni |
-| JavaScript kapalı | Statik içerik, son resmi rakam ve metodoloji görünür; hesaplayıcı yerine açıklama |
+| Durum                        | Davranış                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| Sepet tamamen boş            | Sonuç alanı iskelet halinde, "Bir kalem gir" ipucu                                |
+| Sadece tek kalem dolu        | Hesap yapılır, "tek kalemle sonuç o kalemin enflasyonudur" notu                   |
+| URL'deki sepet bozuk / eksik | Sessizce varsayılana dönülür, üstte kapanabilir bilgi bandı                       |
+| Seçilen dönem için veri yok  | Dönem seçicide o aylar devre dışı; en son veri ayı varsayılan                     |
+| Negatif / harf girişi        | `inputmode="decimal"`, girişte temizlenir, alan altında hata metni                |
+| JavaScript kapalı            | Statik içerik, son resmi rakam ve metodoloji görünür; hesaplayıcı yerine açıklama |
 
 ### 2.4 Hazır profiller
 
@@ -102,20 +102,20 @@ Uygulama **statik öncelikli** üretilir: `/` ve tüm içerik sayfaları SSG'dir
 
 ### 3.1 Teknoloji seçimleri
 
-| Katman | Seçim | Gerekçe |
-| --- | --- | --- |
-| Framework | Next.js (App Router), TypeScript strict | SSG + RSC ile minimum client JS; OG image desteği yerleşik |
-| Hesap | `enflasyon-core` (`workspace:^`, aynı monorepo'daki `packages/core`) | Kendi paketin; dogfooding. Yayınlanan sürümle aynı kod |
-| Stil | Tailwind CSS v4 + CSS değişkenleri (design token) | Tema, dark mode, küçük CSS çıktısı |
-| UI primitifleri | Radix UI (sadece Slider, Tabs, Dialog, Tooltip) | Erişilebilirlik hazır gelir; görünüm tamamen senin |
-| Grafik | Kendi SVG bileşenleri + `d3-scale`, `d3-shape`, `d3-array` | Hazır kütüphaneye göre çok küçük, tam kontrol, erişilebilir |
-| Animasyon | CSS + View Transitions API; gerekiyorsa `motion` (lazy) | `prefers-reduced-motion` desteği |
-| Doğrulama | Zod (sadece build/pipeline tarafı) | Client bundle'a girmez |
-| İçerik | MDX (metodoloji sayfası) | Formüller ve açıklama tek yerde |
-| Test | Vitest, Testing Library, Playwright, axe-core | Bölüm 9 |
-| Deploy | Vercel (Hobby) | Statik + Edge OG; preview deploy her PR'da |
-| Analitik | Plausible veya Umami (çerezsiz) | KVKK dostu, çerez bandı gerekmez |
-| Hata takibi | Sentry (sadece client hataları, PII kapalı) | Canlı sorunları görmek |
+| Katman          | Seçim                                                                | Gerekçe                                                     |
+| --------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Framework       | Next.js (App Router), TypeScript strict                              | SSG + RSC ile minimum client JS; OG image desteği yerleşik  |
+| Hesap           | `enflasyon-core` (`workspace:^`, aynı monorepo'daki `packages/core`) | Kendi paketin; dogfooding. Yayınlanan sürümle aynı kod      |
+| Stil            | Tailwind CSS v4 + CSS değişkenleri (design token)                    | Tema, dark mode, küçük CSS çıktısı                          |
+| UI primitifleri | Radix UI (sadece Slider, Tabs, Dialog, Tooltip)                      | Erişilebilirlik hazır gelir; görünüm tamamen senin          |
+| Grafik          | Kendi SVG bileşenleri + `d3-scale`, `d3-shape`, `d3-array`           | Hazır kütüphaneye göre çok küçük, tam kontrol, erişilebilir |
+| Animasyon       | CSS + View Transitions API; gerekiyorsa `motion` (lazy)              | `prefers-reduced-motion` desteği                            |
+| Doğrulama       | Zod (sadece build/pipeline tarafı)                                   | Client bundle'a girmez                                      |
+| İçerik          | MDX (metodoloji sayfası)                                             | Formüller ve açıklama tek yerde                             |
+| Test            | Vitest, Testing Library, Playwright, axe-core                        | Bölüm 9                                                     |
+| Deploy          | Vercel (Hobby)                                                       | Statik + Edge OG; preview deploy her PR'da                  |
+| Analitik        | Plausible veya Umami (çerezsiz)                                      | KVKK dostu, çerez bandı gerekmez                            |
+| Hata takibi     | Sentry (sadece client hataları, PII kapalı)                          | Canlı sorunları görmek                                      |
 
 ### 3.2 Klasör yapısı
 
@@ -190,15 +190,15 @@ TÜİK enflasyonu her ayın 3'ünde saat 10:00'da açıklar; EVDS'ye yansıması
 name: data-update
 on:
   schedule:
-    - cron: "0 8 3-5 * *"     # 11:00 Europe/Istanbul
+    - cron: "0 8 3-5 * *" # 11:00 Europe/Istanbul
   workflow_dispatch:
 permissions: {}
 jobs:
   update:
     runs-on: ubuntu-latest
-    environment: data          # secret'lar sadece bu environment'ta
+    environment: data # secret'lar sadece bu environment'ta
     permissions:
-      contents: read           # yazma işi App token'ıyla yapılır
+      contents: read # yazma işi App token'ıyla yapılır
     steps:
       - uses: actions/create-github-app-token@<sha>
         id: app
@@ -216,8 +216,8 @@ jobs:
           EVDS_API_KEY: ${{ secrets.EVDS_API_KEY }}
       - uses: peter-evans/create-pull-request@<sha>
         with:
-          token: ${{ steps.app.outputs.token }}  # PR'da ci.yml tetiklensin
-          sign-commits: true                     # "Verified" commit
+          token: ${{ steps.app.outputs.token }} # PR'da ci.yml tetiklensin
+          sign-commits: true # "Verified" commit
           branch: data/auto-update
           title: "data: monthly CPI update"
           commit-message: "data: add monthly CPI update"
@@ -243,9 +243,9 @@ EVDS erişimi kesilir veya koşullar uygun olmazsa: TÜİK'in veri portalından 
 {
   "base": "2025=100",
   "series": {
-    "genel":  { "2025-01": 92.31, "2025-02": 94.40 },
-    "konut":  { "2025-01": 90.12, "2025-02": 93.05 },
-    "gida":   { "2025-01": 93.70, "2025-02": 95.11 }
+    "genel": { "2025-01": 92.31, "2025-02": 94.4 },
+    "konut": { "2025-01": 90.12, "2025-02": 93.05 },
+    "gida": { "2025-01": 93.7, "2025-02": 95.11 }
   }
 }
 ```
@@ -264,16 +264,16 @@ Tek doğruluk kaynağı **URL**'dir. Sepet, mod ve dönem URL parametrelerinde d
 
 URL iki parçadan oluşur. **Query** (`?…`) sunucuya gider ve sadece oranları içerir; **fragment** (`#…`) tarayıcıda kalır ve TL tutarlarını içerir.
 
-| Parametre | Yer | Anlam | Değerler |
-| --- | --- | --- | --- |
-| `v` | query | Şema sürümü | `1` (ileride format değişirse eski linkler bozulmasın diye) |
-| `d` | query | Dönem tipi | `y` yıllık, `m` aylık, `ytd` yılbaşından beri, `r` aralık |
-| `at` | query | Hedef ay | `YYYY-MM`. Paylaşım linkinde **her zaman açıkça yazılır** (OG cache'i buna dayanır, Bölüm 7.1); elle yazılmış linkte yoksa en son veri ayı |
-| `from` | query | Aralık başlangıcı | sadece `d=r` iken |
-| `w` | query | Yüzde dağılımı | `kalem.binde` çiftleri, `~` ile ayrılmış; tam sayı binde (595 = %59,5), sıfır kalemler yazılmaz |
-| `p` | query | Profil | opsiyonel; `w` veya `s` varsa yok sayılır |
-| `m` | fragment | Giriş modu | `tl` / `pct` (arayüzde hangi modun açılacağı) |
-| `s` | fragment | TL tutarları | `kalem.tutar` çiftleri, tam sayı TL; sıfır kalemler yazılmaz |
+| Parametre | Yer      | Anlam             | Değerler                                                                                                                                   |
+| --------- | -------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `v`       | query    | Şema sürümü       | `1` (ileride format değişirse eski linkler bozulmasın diye)                                                                                |
+| `d`       | query    | Dönem tipi        | `y` yıllık, `m` aylık, `ytd` yılbaşından beri, `r` aralık                                                                                  |
+| `at`      | query    | Hedef ay          | `YYYY-MM`. Paylaşım linkinde **her zaman açıkça yazılır** (OG cache'i buna dayanır, Bölüm 7.1); elle yazılmış linkte yoksa en son veri ayı |
+| `from`    | query    | Aralık başlangıcı | sadece `d=r` iken                                                                                                                          |
+| `w`       | query    | Yüzde dağılımı    | `kalem.binde` çiftleri, `~` ile ayrılmış; tam sayı binde (595 = %59,5), sıfır kalemler yazılmaz                                            |
+| `p`       | query    | Profil            | opsiyonel; `w` veya `s` varsa yok sayılır                                                                                                  |
+| `m`       | fragment | Giriş modu        | `tl` / `pct` (arayüzde hangi modun açılacağı)                                                                                              |
+| `s`       | fragment | TL tutarları      | `kalem.tutar` çiftleri, tam sayı TL; sıfır kalemler yazılmaz                                                                               |
 
 Değerler **sadece tam sayıdır**; böylece `kalem.değer` ayrımındaki `.` hiçbir zaman belirsiz olmaz (ondalık TL veya yüzde URL'e yazılmaz, binde kullanılır). Kısa ve okunabilir olması için JSON veya base64 kullanılmaz; böylece link WhatsApp'ta da makul görünür. Kalem anahtarları `lib/categories.ts`'deki sabit listeden gelir; listede olmayan anahtar sessizce atılır.
 
@@ -313,12 +313,12 @@ Grafikler hazır bir kütüphaneyle değil, React + SVG ile elle yazılır; hesa
 
 ### 6.1 Grafik envanteri
 
-| Grafik | Tür | Ne gösterir |
-| --- | --- | --- |
-| Katkı dökümü | Yatay çubuk, büyükten küçüğe | Her kalemin kişisel enflasyona puan katkısı |
-| Sen vs resmi | İki çubuk veya büyük rakam + fark | Tek bakışta karşılaştırma |
-| Zaman serisi | Çizgi, iki seri (sen, resmi) | Son 5 yılda aylık bazda yıllık enflasyon |
-| Maaş erimesi | Çizgi + alan (reel değer) | Zam tarihinden bugüne maaşın satın alma gücü |
+| Grafik       | Tür                               | Ne gösterir                                  |
+| ------------ | --------------------------------- | -------------------------------------------- |
+| Katkı dökümü | Yatay çubuk, büyükten küçüğe      | Her kalemin kişisel enflasyona puan katkısı  |
+| Sen vs resmi | İki çubuk veya büyük rakam + fark | Tek bakışta karşılaştırma                    |
+| Zaman serisi | Çizgi, iki seri (sen, resmi)      | Son 5 yılda aylık bazda yıllık enflasyon     |
+| Maaş erimesi | Çizgi + alan (reel değer)         | Zam tarihinden bugüne maaşın satın alma gücü |
 
 ### 6.2 Bileşen yapısı
 
@@ -380,18 +380,18 @@ Bütçeler CI'da zorunludur; aşılırsa PR birleştirilemez. Ölçümler mobil 
 
 **JS bütçesi neden iki parçalı:** App Router'da React + Next.js runtime tek başına yaklaşık 90–100 KB gzip tutar ve bu kısım uygulama kodundan bağımsızdır. Toplam için 90 KB gibi sabit bir sınır, ilk PR'dan itibaren aşılır. Bu yüzden taban (framework) adım 2'de boş bir sayfayla ölçülür ve kayda geçer; bütçe, uygulamanın kendi eklediği kod üzerinden konur. Framework sürüm yükseltmesinde taban yeniden ölçülür. Toplam ilk yük JS ölçülen değerin çok üstünde çıkarsa (ör. taban > 110 KB), island'ı Preact ile derlemek veya hesaplayıcıyı daha hafif bir framework'e (Astro + island) taşımak değerlendirilir; bu karar case study'de ölçümlerle anlatılır.
 
-| Metrik | Bütçe | Nasıl korunur |
-| --- | --- | --- |
-| LCP | < 1,5 s | Hero metni sunucuda render, font `preload`, görsel yok |
-| INP | < 100 ms | Hesap < 1 ms, uzun görev yok, kaydırıcıda rAF |
-| CLS | 0 | Grafikler sabit en-boy oranıyla SSR, font `size-adjust` |
-| TTFB | < 200 ms | CDN'den statik |
-| Framework taban JS (gzip) | Ölçülür, bütçe dışı | React + Next.js runtime; adım 2'de boş sayfayla ölçülüp referans alınır |
-| Uygulama JS (gzip, taban hariç) | < 50 KB | `size-limit` + `@next/bundle-analyzer`; island + analitik |
-| İlk yük JS (gzip, toplam) | Taban + 50 KB | Taban ölçüldükten sonra sabit sayıya çevrilir |
-| Hesaplayıcı island JS | < 35 KB | Grafik kodu dahil |
-| Gömülü veri | < 20 KB | Son 6 yıl, 2 ondalık; uzun geçmiş istenirse lazy |
-| Lighthouse (4 kategori) | 100 | Lighthouse CI, 3 çalışmanın medyanı |
+| Metrik                          | Bütçe               | Nasıl korunur                                                           |
+| ------------------------------- | ------------------- | ----------------------------------------------------------------------- |
+| LCP                             | < 1,5 s             | Hero metni sunucuda render, font `preload`, görsel yok                  |
+| INP                             | < 100 ms            | Hesap < 1 ms, uzun görev yok, kaydırıcıda rAF                           |
+| CLS                             | 0                   | Grafikler sabit en-boy oranıyla SSR, font `size-adjust`                 |
+| TTFB                            | < 200 ms            | CDN'den statik                                                          |
+| Framework taban JS (gzip)       | Ölçülür, bütçe dışı | React + Next.js runtime; adım 2'de boş sayfayla ölçülüp referans alınır |
+| Uygulama JS (gzip, taban hariç) | < 50 KB             | `size-limit` + `@next/bundle-analyzer`; island + analitik               |
+| İlk yük JS (gzip, toplam)       | Taban + 50 KB       | Taban ölçüldükten sonra sabit sayıya çevrilir                           |
+| Hesaplayıcı island JS           | < 35 KB             | Grafik kodu dahil                                                       |
+| Gömülü veri                     | < 20 KB             | Son 6 yıl, 2 ondalık; uzun geçmiş istenirse lazy                        |
+| Lighthouse (4 kategori)         | 100                 | Lighthouse CI, 3 çalışmanın medyanı                                     |
 
 ### 8.1 Teknikler
 
@@ -408,16 +408,16 @@ Bütçeler CI'da zorunludur; aşılırsa PR birleştirilemez. Ölçümler mobil 
 
 ## 9. Test ve kalite kapıları
 
-| Katman | Araç | Kapsam |
-| --- | --- | --- |
-| Unit | Vitest | `basket-url` (round-trip property testi dahil), `format`, `errors`, profil verisi doğrulama, veri pipeline'ı (fixture ile, ağsız) |
-| Bileşen | Vitest + Testing Library | Sepet formu: yazma, mod değiştirme, toplam uyarısı, normalize butonu; sonuç kartı durumları |
-| E2E | Playwright (Chromium, WebKit, mobil viewport) | Tam akış; paylaşım linkini açınca aynı sonuç; geri tuşu; JS kapalı sayfa |
-| Erişilebilirlik | `@axe-core/playwright` | Her rota ve her ana durumda 0 ihlal |
-| Görsel regresyon | Playwright screenshot | Sonuç kartı ve grafikler, açık/koyu tema |
-| Performans | Lighthouse CI | Bölüm 8 bütçeleri |
-| Veri | Pipeline doğrulaması | Zod şeması + çapraz kontrol (Bölüm 4) |
-| Güvenlik | gitleaks, CodeQL, `pnpm audit` | Secret ve bilinen açık |
+| Katman           | Araç                                          | Kapsam                                                                                                                            |
+| ---------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Unit             | Vitest                                        | `basket-url` (round-trip property testi dahil), `format`, `errors`, profil verisi doğrulama, veri pipeline'ı (fixture ile, ağsız) |
+| Bileşen          | Vitest + Testing Library                      | Sepet formu: yazma, mod değiştirme, toplam uyarısı, normalize butonu; sonuç kartı durumları                                       |
+| E2E              | Playwright (Chromium, WebKit, mobil viewport) | Tam akış; paylaşım linkini açınca aynı sonuç; geri tuşu; JS kapalı sayfa                                                          |
+| Erişilebilirlik  | `@axe-core/playwright`                        | Her rota ve her ana durumda 0 ihlal                                                                                               |
+| Görsel regresyon | Playwright screenshot                         | Sonuç kartı ve grafikler, açık/koyu tema                                                                                          |
+| Performans       | Lighthouse CI                                 | Bölüm 8 bütçeleri                                                                                                                 |
+| Veri             | Pipeline doğrulaması                          | Zod şeması + çapraz kontrol (Bölüm 4)                                                                                             |
+| Güvenlik         | gitleaks, CodeQL, `pnpm audit`                | Secret ve bilinen açık                                                                                                            |
 
 ### 9.1 CI akışı (`ci.yml`)
 
@@ -444,14 +444,14 @@ Uygulamanın çalışma anında **hiçbir secret'ı yoktur**. Secret'lar (EVDS a
 
 ### 10.1 Ortam değişkenleri kuralı
 
-| Değişken | Nerede | Gizli mi | Not |
-| --- | --- | --- | --- |
-| `EVDS_API_KEY` | GitHub Environment `data` secret; yerelde `.env.local` | Evet | Sadece `scripts/data/` okur |
-| `DATA_APP_PRIVATE_KEY` | GitHub Environment `data` secret | Evet | Veri PR'ını açan GitHub App; `DATA_APP_ID` aynı environment'ta variable |
-| `NEXT_PUBLIC_SITE_URL` | Vercel env | Hayır | Canonical ve OG için |
-| `NEXT_PUBLIC_ANALYTICS_DOMAIN` | Vercel env | Hayır | Plausible/Umami site kimliği |
-| `NEXT_PUBLIC_SENTRY_DSN` | Vercel env | Hayır | DSN public olacak şekilde tasarlanmıştır; Sentry'de "allowed domains" ile sınırlanır |
-| `SENTRY_AUTH_TOKEN` | Vercel env (sadece build) | Evet | Source map yükleme; istemezsen hiç eklenmez |
+| Değişken                       | Nerede                                                 | Gizli mi | Not                                                                                  |
+| ------------------------------ | ------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------ |
+| `EVDS_API_KEY`                 | GitHub Environment `data` secret; yerelde `.env.local` | Evet     | Sadece `scripts/data/` okur                                                          |
+| `DATA_APP_PRIVATE_KEY`         | GitHub Environment `data` secret                       | Evet     | Veri PR'ını açan GitHub App; `DATA_APP_ID` aynı environment'ta variable              |
+| `NEXT_PUBLIC_SITE_URL`         | Vercel env                                             | Hayır    | Canonical ve OG için                                                                 |
+| `NEXT_PUBLIC_ANALYTICS_DOMAIN` | Vercel env                                             | Hayır    | Plausible/Umami site kimliği                                                         |
+| `NEXT_PUBLIC_SENTRY_DSN`       | Vercel env                                             | Hayır    | DSN public olacak şekilde tasarlanmıştır; Sentry'de "allowed domains" ile sınırlanır |
+| `SENTRY_AUTH_TOKEN`            | Vercel env (sadece build)                              | Evet     | Source map yükleme; istemezsen hiç eklenmez                                          |
 
 **Kurallar:**
 
