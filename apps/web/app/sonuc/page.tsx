@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   }
   const image = `/api/og?${query.toString()}`;
   return {
-    title: "Benim enflasyonum | Benim Enflasyonum",
+    title: "Benim enflasyonum",
     description: "Harcamalarıma göre kişisel enflasyonum. Seninkini de hesapla.",
     robots: { index: false, follow: true },
     alternates: { canonical: "/" },

@@ -64,6 +64,11 @@ export default tseslint.config(
     },
   },
   {
+    // Tek istisna: JSON-LD bileşeni. Girdi kullanıcıdan gelmez ve `<` kaçışlıdır.
+    files: ["apps/web/components/JsonLd.tsx"],
+    rules: { "no-restricted-syntax": "off" },
+  },
+  {
     // Motor paketi: güvenlik ve bağımsızlık kuralları (docs/core.md, Bölüm 2 ve 8.5)
     files: ["packages/core/src/**/*.ts"],
     rules: {

@@ -1,10 +1,12 @@
 import "server-only";
 import { availablePeriods, toIndexSet } from "enflasyon-core";
+import type { IndexSet, Period } from "enflasyon-core";
 import groupsJson from "@/data/cpi-groups.json";
 import metaJson from "@/data/meta.json";
 import weightsJson from "@/data/cpi-weights.json";
 import { CATEGORY_KEYS } from "./categories";
 import type { CalculatorData } from "./calc";
+import type { WeightsByYear } from "./years";
 
 /**
  * `data/*.json` dosyalarını build sırasında okur ve hesaplayıcıya verilecek
@@ -42,5 +44,28 @@ export function loadCalculatorData(): CalculatorData {
     firstPeriod,
     lastPeriod,
     attribution: metaJson.attribution,
+  };
+}
+
+export interface SiteData {
+  readonly indices: IndexSet;
+  readonly weights: WeightsByYear;
+  readonly lastPeriod: Period;
+  readonly sourceLabel: string;
+  readonly attribution: string;
+  /** Veri anlık görüntüsünün alındığı gün (YYYY-AA-GG). */
+  readonly retrievedAt: string;
+}
+
+/** İçerik sayfaları (yıl sayfaları, sitemap) için resmi veri. */
+export function loadSiteData(): SiteData {
+  const { lastPeriod } = loadCalculatorData();
+  return {
+    indices: toIndexSet(groupsJson.series),
+    weights: weightsJson,
+    lastPeriod,
+    sourceLabel: metaJson.sourceLabel,
+    attribution: metaJson.attribution,
+    retrievedAt: metaJson.retrievedAt,
   };
 }

@@ -382,6 +382,16 @@ Paylaşılan `/sonuc?…` linki WhatsApp, X veya LinkedIn'de açıldığında ki
 - Core Web Vitals (Bölüm 8) SEO'nun da parçasıdır.
 - İçerik tonu tarafsız: resmi veriyi gösterir, "resmi rakam yanlış" iddiası yapmaz; fark, ağırlık farkı olarak açıklanır. Bu hem güvenilirlik hem hukuki açıdan önemlidir.
 
+**Uygulama (web Adım 10):**
+
+- **Sayfalar:** `/nasil-hesapliyoruz` (metodoloji), `/enflasyon` (yıl listesi), `/enflasyon/[yil]` (SSG, `dynamicParams = false`; önceki Aralık verisi olan her yıl, şu an 2021–2026), `/gizlilik`, `not-found`. Üstte basit menü, altta Bölüm 2.2 adım 5'teki altbilgi.
+- **MDX yerine TSX:** metodoloji ve gizlilik metinleri sunucu bileşeni olarak yazıldı. `@next/mdx` üç yeni bağımlılık ve ayrı bir derleme hattı getiriyordu; içerik iki sayfa olduğu için kazancı yok. Sayfalar yine sıfır JS'tir.
+- **Yıl sayfaları** `lib/years.ts`'ten beslenir: aylık/yıllık tablo, yılbaşından beri (yıl tamamsa Aralık'tan Aralık'a) değişim, 12 aylık ortalama, grup değişimleri ve o yılın resmi ağırlıkları. 2021–2025 yıllık rakamları TÜİK'in açıkladığı rakamlarla testte karşılaştırılır (36,08 / 64,27 / 64,77 / 44,38 / 30,89). Giriş cümlesi veriden üretilir, yorum içermez; yıl ve ay adlarına Türkçe ek getirilmez.
+- **Profil sayfaları (`/profil/[slug]`) yok:** Bölüm 2.4 gereği kaynaklı profil verisi gelene kadar uydurma profil sayfası üretilmez.
+- **JSON-LD:** `components/JsonLd.tsx`, `dangerouslySetInnerHTML`'in ESLint'te izinli olduğu tek dosyadır; `serializeJsonLd` `<` karakterini `\u003c` ile kaçırır. Ana sayfada `WebApplication`, metodolojide `Article`, yıl sayfalarında `Dataset`.
+- **sitemap/robots:** kök adres `lib/site.ts`'teki `siteUrl` ile (`NEXT_PUBLIC_SITE_URL` → `VERCEL_PROJECT_PRODUCTION_URL` → localhost); `lastModified` veri anlık görüntüsünün alındığı gün. `/sonuc` ve `/api/` sitemap'e girmez, robots `/api/`'yi engeller. Başlıklar `%s | Benim Enflasyonum` şablonuyla üretilir, her sayfanın kendi canonical'ı vardır.
+- **Gizlilik sayfası** şu anki durumu anlatır (analitik ve Sentry yok); web Adım 12'de araçlar eklenirken aynı commit'te güncellenir.
+
 ## 8. Performans bütçeleri
 
 Bütçeler CI'da zorunludur; aşılırsa PR birleştirilemez. Ölçümler mobil profilde (Moto G Power sınıfı, yavaş 4G) yapılır.

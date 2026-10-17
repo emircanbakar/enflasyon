@@ -1,24 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { SiteFooter } from "@/components/site/SiteFooter";
+import { SiteHeader } from "@/components/site/SiteHeader";
+import { loadCalculatorData } from "@/lib/data";
+import { SITE_NAME, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-/** Mutlak URL'ler (canonical, og:image) için kök adres; tanımlı değilse Vercel'in üretim adresi. */
-function siteUrl(): URL {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return new URL(configured);
-  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  return new URL(vercel ? `https://${vercel}` : "http://localhost:3000");
-}
-
 export const metadata: Metadata = {
-  metadataBase: siteUrl(),
-  title: "Benim Enflasyonum",
+  metadataBase: siteUrl(process.env),
+  title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description:
     "Harcamalarına göre kişisel enflasyonunu hesapla. Hesap tarayıcında yapılır; girdiğin tutarlar hiçbir sunucuya gönderilmez.",
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    siteName: "Benim Enflasyonum",
+    siteName: SITE_NAME,
     images: [{ url: "/api/og", width: 1200, height: 630 }],
   },
   twitter: { card: "summary_large_image" },
@@ -32,6 +28,7 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { readonly children: ReactNode }) {
+  const { lastPeriod, attribution } = loadCalculatorData();
   return (
     <html lang="tr">
       <body className="min-h-dvh antialiased">
@@ -41,9 +38,11 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
         >
           İçeriğe atla
         </a>
-        <main id="icerik" className="mx-auto max-w-2xl px-4 py-16">
+        <SiteHeader />
+        <main id="icerik" className="mx-auto max-w-2xl px-4 py-12">
           {children}
         </main>
+        <SiteFooter lastPeriod={lastPeriod} attribution={attribution} />
       </body>
     </html>
   );
