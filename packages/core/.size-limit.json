@@ -1,0 +1,22 @@
+[
+  {
+    "name": "ESM, tüm API (min + gzip)",
+    "path": "dist/index.js",
+    "import": "*",
+    "limit": "5 KB",
+    "gzip": true
+  },
+  {
+    "name": "CJS, tüm API (min + gzip)",
+    "path": "dist/index.cjs",
+    "limit": "5 KB",
+    "gzip": true
+  },
+  {
+    "name": "ESM, sadece annual (tree-shaking)",
+    "path": "dist/index.js",
+    "import": "{ annual }",
+    "limit": "3 KB",
+    "gzip": true
+  }
+]

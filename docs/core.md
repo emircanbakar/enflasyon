@@ -529,6 +529,8 @@ Monorepo'daki tüm workflow'lar `.github/workflows/` altında ortaktır: `ci.yml
 
 `web` job'u: web dokümanı Bölüm 9.1.
 
+**Şu anki durum:** `ci.yml` kurulu; `core` job'u Node 22/24 matrisinde lint, format, typecheck, %100 kapsamlı test, build, publint + attw (node10 dahil tüm çözümlemeler yeşil; bunun için `main`/`types` alanları da var), size-limit (min + gzip: tüm API ~3,2 KB, sadece `annual` ~2,1 KB) ve tarball smoke testini (`packages/core/scripts/smoke.mjs`) çalıştırır. `secrets` job'u gitleaks-action ile tüm geçmişi tarar (kişisel hesapta lisans gerekmez). Web job'u ve `dorny/paths-filter` web uygulaması eklenince gelir.
+
 Branch protection, iki job'u da "required" yapmak yerine her zaman çalışan küçük bir `ci-ok` toplama job'unu zorunlu tutar; böylece path filtresiyle atlanan bir job PR'ı kilitlemez.
 
 **`release.yml`** — `main`'e merge sonrası:

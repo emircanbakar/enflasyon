@@ -19,8 +19,12 @@ export default tseslint.config(
     },
   },
   {
-    files: ["**/*.js"],
+    // Config dosyaları ve Node script'leri: tip kontrollü kurallar kapalı.
+    files: ["**/*.{js,mjs,cjs}"],
     extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: { console: "readonly", process: "readonly", URL: "readonly" },
+    },
   },
   {
     // Testlerde fixture'lardan değer okurken `!` kabul edilir; kaynak kodda yasak kalır.

@@ -1,0 +1,86 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Varsayılan olarak hiçbir yetki yok; her job ihtiyacı olanı kendisi ister.
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # CI'da git hook'ları kurulmaz.
+  LEFTHOOK: 0
+
+jobs:
+  core:
+    name: core (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm --filter enflasyon-core typecheck
+      - run: pnpm --filter enflasyon-core test:coverage
+      - run: pnpm --filter enflasyon-core build
+      - name: Paket doğrulama (publint + attw)
+        run: pnpm --filter enflasyon-core lint:package
+      - name: Boyut bütçesi (size-limit)
+        run: pnpm --filter enflasyon-core size
+      - name: Smoke test (tarball, ESM + CJS)
+        run: pnpm --filter enflasyon-core smoke
+
+  secrets:
+    name: secret taraması
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+
+  # Branch protection'da zorunlu tutulacak tek job. İleride path filtresiyle
+  # atlanan job'lar (web) PR'ı kilitlemesin diye sonuçları burada toplanır.
+  ci-ok:
+    name: ci-ok
+    if: always()
+    needs: [core, secrets]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Tüm job'lar başarılı mı
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Sonuçlar: $RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success|skipped) ;;
+              *) exit 1 ;;
+            esac
+          done
