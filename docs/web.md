@@ -70,6 +70,7 @@ Uygulama tek bir ana sayfada, kaydırılarak ilerleyen üç bölümden oluşur. 
    - Zaman serisi: aynı sepetin son 5 yıldaki yıllık enflasyonu ile resmi değer. Grafik "bugünkü sepetinle geçmiş yıllar" olarak etiketlenir; kullanıcının geçmişteki harcama dağılımının farklı olabileceği metodoloji sayfasında açıklanır.
    - "O zamanki tutar" hesaplayıcısı: tarih + TL → bugünkü karşılık.
    - Maaş hesaplayıcısı: eski maaş, yeni maaş, zam tarihi → reel değişim ve "enflasyonu karşılayan maaş".
+   - **Uygulama (web Adım 8):** `components/tools/` (`PastAmountTool`, `WageTool`), hesap `lib/tools.ts`'te (`adjustAmount`, `realWageChange`). Başlangıç ayı varsayılan olarak bir yıl öncesidir; bitiş her zaman son veri ayıdır. Sepet doluysa sonuç önce kişisel enflasyonla, ardından resmi enflasyonla verilir; boşsa yalnızca resmi. Ay adlarına Türkçe ek getirilmez ("Eylül'de"/"Mart'ta" ünlü uyumu hatası riskine karşı cümleler eksiz kurulur). "Maaş erimesi" grafiği (Bölüm 6.1) henüz yok; metin sonuçlar ve gereken maaş gösteriliyor.
 5. **Altbilgi:** veri kaynağı ve son güncelleme tarihi, metodoloji linki, "verilerin hiçbir yere gönderilmez" notu, GitHub linki.
 
 ### 2.3 Boş, hata ve sınır durumları

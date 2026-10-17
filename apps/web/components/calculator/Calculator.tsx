@@ -8,6 +8,8 @@ import { officialProfile } from "@/lib/profiles";
 import { annualSeries } from "@/lib/series";
 import { useBasket } from "@/lib/use-basket";
 import { TimeSeriesChart } from "../charts/TimeSeriesChart";
+import { PastAmountTool } from "../tools/PastAmountTool";
+import { WageTool } from "../tools/WageTool";
 import { ResultCard } from "../result/ResultCard";
 import { BasketForm } from "./BasketForm";
 import { PeriodPicker } from "./PeriodPicker";
@@ -40,6 +42,8 @@ export function Calculator({ data }: CalculatorProps) {
     [state, at, from, data, indices],
   );
 
+  // Detay araçlarının başlangıç ayı seçenekleri: son veri ayı hariç, yeniden eskiye.
+  const toolMonths = useMemo(() => starts.slice(0, -1).reverse(), [starts]);
   const series = useMemo(
     () => annualSeries(state.values, data, indices),
     [state.values, data, indices],
@@ -80,6 +84,16 @@ export function Calculator({ data }: CalculatorProps) {
         <p className="mt-3 text-sm text-[var(--color-muted)]">
           Kişisel çizgi bugünkü sepetinin geçmiş yıllara uygulanmasıdır; o yıllardaki harcama
           dağılımın farklı olmuş olabilir.
+        </p>
+      </section>
+      <section
+        aria-label="Detay araçları"
+        className="space-y-8 rounded-xl border border-[var(--color-line)] bg-[var(--color-card)] p-5"
+      >
+        <PastAmountTool data={data} indices={indices} values={state.values} months={toolMonths} />
+        <WageTool data={data} indices={indices} values={state.values} months={toolMonths} />
+        <p className="text-sm text-[var(--color-muted)]">
+          Sepetin doluysa sonuçlar önce senin enflasyonunla, sonra resmi enflasyonla verilir.
         </p>
       </section>
       <p className="text-sm text-[var(--color-muted)]">
