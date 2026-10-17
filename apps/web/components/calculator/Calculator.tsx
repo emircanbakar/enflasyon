@@ -11,6 +11,7 @@ import { TimeSeriesChart } from "../charts/TimeSeriesChart";
 import { PastAmountTool } from "../tools/PastAmountTool";
 import { WageTool } from "../tools/WageTool";
 import { ResultCard } from "../result/ResultCard";
+import { ShareActions } from "../result/ShareActions";
 import { BasketForm } from "./BasketForm";
 import { PeriodPicker } from "./PeriodPicker";
 
@@ -74,7 +75,11 @@ export function Calculator({ data }: CalculatorProps) {
             dispatch({ type: "setFrom", from: value });
           }}
         />
-        <ResultCard outcome={outcome} />
+        <ResultCard outcome={outcome}>
+          {outcome.status === "ok" && (
+            <ShareActions state={{ ...state, at, from }} lastPeriod={data.lastPeriod} />
+          )}
+        </ResultCard>
       </div>
       <section
         aria-label="Zaman serisi"

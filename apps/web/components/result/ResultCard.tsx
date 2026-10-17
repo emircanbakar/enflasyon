@@ -1,11 +1,14 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { CalcOutcome } from "@/lib/calc";
 import { ContributionBars } from "@/components/charts/ContributionBars";
 import { compareRates, formatMonth, formatPercent } from "@/lib/format";
 
 interface ResultCardProps {
   readonly outcome: CalcOutcome;
+  /** Kartın altına eklenecek içerik (paylaşım butonları). */
+  readonly children?: ReactNode;
 }
 
 /**
@@ -13,7 +16,7 @@ interface ResultCardProps {
  * karşılaştırma ve katkı dökümü grafiği (tablo görünümüyle).
  * Özet cümle `aria-live="polite"` bölgesinde ekran okuyucuya duyurulur.
  */
-export function ResultCard({ outcome }: ResultCardProps) {
+export function ResultCard({ outcome, children }: ResultCardProps) {
   return (
     <section
       aria-labelledby="sonuc-baslik"
@@ -36,6 +39,7 @@ export function ResultCard({ outcome }: ResultCardProps) {
         {outcome.status === "ok" && <Summary outcome={outcome} />}
       </div>
       {outcome.status === "ok" && <Contributions outcome={outcome} />}
+      {children}
     </section>
   );
 }

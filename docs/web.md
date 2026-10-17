@@ -364,6 +364,15 @@ Paylaşılan `/sonuc?…` linki WhatsApp, X veya LinkedIn'de açıldığında ki
 
 1080×1920 dikey kart, OG görseliyle aynı Edge route'unda **sunucuda** üretilir: tarayıcı `/api/og?format=story&…` adresinden PNG'yi `fetch` ile alır, `Blob`'a çevirir ve `Web Share API` (dosya paylaşımı destekleniyorsa) veya indirme linki ile sunar. İstek sadece yüzde dağılımını taşır, TL tutarlarını değil. Ayrı bir canvas kodu yazılmaz; tek şablon, iki boyut.
 
+**Uygulama (web Adım 9):**
+
+- `app/api/og/route.tsx` (görsel), `app/sonuc/page.tsx` (`generateMetadata` ile kişiye özel `og:image`, `noindex, follow`, canonical `/`), `components/result/ShareActions.tsx`; saf mantık `lib/og.ts` ve `lib/share.ts`'te.
+- **Runtime:** Edge yerine Node (Next.js varsayılanı). Hesap aynı `enflasyon-core` ile yapılır; ölçülen bir Edge ihtiyacı çıkarsa değiştirilir. Önbellek başlığı Edge'dekiyle aynıdır.
+- **Font:** ayrı font dosyası eklenmedi; `next/og` ile paketli gelen Geist, Türkçe karakterlerin tamamını kapsar (ğ, ş, ı, İ, ç, ö, ü; karakter tablosundan doğrulandı). Yalnızca `₺` yoktur, görselde zaten TL tutarı olmadığı için sorun değildir.
+- **Gizlilik varsayılandır:** "Linki kopyala" ve "Paylaş" varsayılan olarak yalnızca yüzde dağılımını paylaşır; TL tutarları ancak kullanıcı "TL tutarlarımı da linke ekle"yi işaretlerse fragment'e eklenir (Bölüm 5.1'deki "yüzde olarak paylaş" seçeneğinin tersine çevrilmiş, daha güvenli hali).
+- **Allowlist:** `/sonuc` önizleme URL'ine yalnızca `v`, `d`, `at`, `from`, `w` parametrelerini geçirir; `/api/og` 600 karakterden uzun query'yi çözmez, geçersiz girdide genel görsel döner.
+- **Story:** aynı route `format=story` ile 1080×1920 üretir; tarayıcı dosya paylaşımını destekliyorsa Web Share ile, desteklemiyorsa indirme olarak sunulur.
+
 ### 7.3 SEO
 
 - **Statik, anlamlı sayfalar:** `/enflasyon/2025`, `/enflasyon/2026` gibi yıl sayfaları (aylık resmi rakamlar, grup bazında artışlar, kısa yorumsuz özet) ve `/profil/kiraci-aile` gibi profil sayfaları. Bunlar "2026 kira enflasyonu", "öğrenci enflasyonu" gibi aramalara cevap verir ve hesaplayıcıya yönlendirir.
