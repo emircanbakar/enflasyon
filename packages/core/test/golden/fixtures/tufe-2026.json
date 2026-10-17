@@ -1,0 +1,217 @@
+{
+  "description": "TÜİK TÜFE (2025=100, COICOP 2018) ana harcama grupları: endeksler, ağırlıklar ve yayımlanan değişim oranları. Kaynak ve alma tarihi: SOURCE.md.",
+  "base": "2025=100",
+  "groups": {
+    "gida": {
+      "label": "Gıda ve alkolsüz içecekler"
+    },
+    "alkol_tutun": {
+      "label": "Alkollü içecekler, tütün ve tütün ürünleri"
+    },
+    "giyim": {
+      "label": "Giyim ve ayakkabı"
+    },
+    "konut": {
+      "label": "Konut, su, elektrik, gaz ve diğer yakıtlar"
+    },
+    "mobilya": {
+      "label": "Mobilya, mefruşat ve evde kullanılan ekipmanlar ile rutin ev bakım ve onarımı"
+    },
+    "saglik": {
+      "label": "Sağlık"
+    },
+    "ulastirma": {
+      "label": "Ulaştırma"
+    },
+    "bilgi_iletisim": {
+      "label": "Bilgi ve iletişim"
+    },
+    "eglence": {
+      "label": "Eğlence, dinlence, spor ve kültür"
+    },
+    "egitim": {
+      "label": "Eğitim hizmetleri"
+    },
+    "lokanta": {
+      "label": "Lokantalar ve konaklama hizmetleri"
+    },
+    "sigorta_finans": {
+      "label": "Sigorta ve finansal hizmetler"
+    },
+    "kisisel_bakim": {
+      "label": "Kişisel bakım, sosyal koruma ve çeşitli mal ve hizmetler"
+    }
+  },
+  "weights": {
+    "2025": {
+      "gida": 24.97,
+      "alkol_tutun": 3.52,
+      "giyim": 7.16,
+      "konut": 15.26,
+      "mobilya": 7.62,
+      "saglik": 4.09,
+      "ulastirma": 15.53,
+      "bilgi_iletisim": 4.81,
+      "eglence": 2.13,
+      "egitim": 2.31,
+      "lokanta": 8.32,
+      "sigorta_finans": 0.26,
+      "kisisel_bakim": 4.03
+    },
+    "2026": {
+      "gida": 24.44,
+      "alkol_tutun": 2.75,
+      "giyim": 7.9,
+      "konut": 11.4,
+      "mobilya": 7.92,
+      "saglik": 2.79,
+      "ulastirma": 16.62,
+      "bilgi_iletisim": 3.1,
+      "eglence": 4.34,
+      "egitim": 2.02,
+      "lokanta": 11.13,
+      "sigorta_finans": 1.07,
+      "kisisel_bakim": 4.49
+    }
+  },
+  "indices": {
+    "genel": {
+      "2025-09": 105.78,
+      "2025-12": 110.39,
+      "2026-06": 129.99,
+      "2026-09": 137.23
+    },
+    "gida": {
+      "2025-09": 105.03,
+      "2025-12": 110.01,
+      "2026-06": 131.89,
+      "2026-09": 134.04
+    },
+    "alkol_tutun": {
+      "2025-09": 106.64,
+      "2025-12": 111.92,
+      "2026-06": 127.68,
+      "2026-09": 140.34
+    },
+    "giyim": {
+      "2025-09": 98.97,
+      "2025-12": 108.73,
+      "2026-06": 116.3,
+      "2026-09": 112.06
+    },
+    "konut": {
+      "2025-09": 108.65,
+      "2025-12": 115.0,
+      "2026-06": 141.62,
+      "2026-09": 152.1
+    },
+    "mobilya": {
+      "2025-09": 104.04,
+      "2025-12": 108.16,
+      "2026-06": 122.23,
+      "2026-09": 128.81
+    },
+    "saglik": {
+      "2025-09": 102.31,
+      "2025-12": 105.53,
+      "2026-06": 130.98,
+      "2026-09": 146.58
+    },
+    "ulastirma": {
+      "2025-09": 106.62,
+      "2025-12": 108.53,
+      "2026-06": 130.31,
+      "2026-09": 144.05
+    },
+    "bilgi_iletisim": {
+      "2025-09": 103.75,
+      "2025-12": 108.26,
+      "2026-06": 122.72,
+      "2026-09": 131.26
+    },
+    "eglence": {
+      "2025-09": 104.97,
+      "2025-12": 108.57,
+      "2026-06": 124.65,
+      "2026-09": 129.49
+    },
+    "egitim": {
+      "2025-09": 118.19,
+      "2025-12": 118.79,
+      "2026-06": 139.77,
+      "2026-09": 175.66
+    },
+    "lokanta": {
+      "2025-09": 106.24,
+      "2025-12": 110.26,
+      "2026-06": 130.72,
+      "2026-09": 137.61
+    },
+    "sigorta_finans": {
+      "2025-09": 102.35,
+      "2025-12": 102.15,
+      "2026-06": 129.17,
+      "2026-09": 134.98
+    },
+    "kisisel_bakim": {
+      "2025-09": 104.85,
+      "2025-12": 109.47,
+      "2026-06": 122.11,
+      "2026-09": 127.79
+    }
+  },
+  "publishedChanges": {
+    "yearToDate": {
+      "2026-06": {
+        "genel": 17.76,
+        "gida": 19.89,
+        "alkol_tutun": 14.08,
+        "giyim": 6.96,
+        "konut": 23.15,
+        "mobilya": 13.01,
+        "saglik": 24.11,
+        "ulastirma": 20.07,
+        "bilgi_iletisim": 13.35,
+        "eglence": 14.81,
+        "egitim": 17.66,
+        "lokanta": 18.56,
+        "sigorta_finans": 26.46,
+        "kisisel_bakim": 11.54
+      },
+      "2026-09": {
+        "genel": 24.32,
+        "gida": 21.84,
+        "alkol_tutun": 25.39,
+        "giyim": 3.06,
+        "konut": 32.26,
+        "mobilya": 19.09,
+        "saglik": 38.9,
+        "ulastirma": 32.73,
+        "bilgi_iletisim": 21.24,
+        "eglence": 19.26,
+        "egitim": 47.88,
+        "lokanta": 24.81,
+        "sigorta_finans": 32.14,
+        "kisisel_bakim": 16.73
+      }
+    },
+    "annual": {
+      "2026-09": {
+        "genel": 29.73,
+        "gida": 27.62,
+        "alkol_tutun": 31.6,
+        "giyim": 13.22,
+        "konut": 39.99,
+        "mobilya": 23.81,
+        "saglik": 43.26,
+        "ulastirma": 35.1,
+        "bilgi_iletisim": 26.51,
+        "eglence": 23.36,
+        "egitim": 48.62,
+        "lokanta": 29.53,
+        "sigorta_finans": 31.89,
+        "kisisel_bakim": 21.88
+      }
+    }
+  }
+}

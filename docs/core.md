@@ -428,6 +428,8 @@ Gerçek bir aya ait resmi veriyle yapılır. TÜİK'in yayınladığı grup ende
 
 Ayrıca 3-4 elle hesaplanmış küçük örnek (2-3 kalemli) sabit beklenen değerle test edilir; aralarında `π = 0` (share = null) ve zıt işaretli katkı örneği de vardır.
 
+**İlk sonuçlar (Eylül 2026 verisi, 17 Ekim 2026):** resmi 2026 ağırlıklarıyla paket, yılbaşından beri değişimi Haziran'da %17,761 (resmi %17,755), Eylül'de %24,319 (resmi %24,314) olarak verir; fark 0,005–0,006 puandır ve yalnızca yayımlanan değerlerin yuvarlanmasından gelir. Yıllık değişimde tek ağırlık setiyle fark beklendiği gibi daha büyüktür (2026 ağırlıklarıyla −0,14, 2025 ağırlıklarıyla +0,68 puan). Fixture ayrıca kendini doğrular: her grubun endekslerden hesaplanan değişimi TÜİK'in yayımladığı oranla ±0,02 puan içinde örtüşmezse test kırılır.
+
 Golden veri `test/golden/fixtures/*.json` altında repoya konur. Bu veri kamuya açık resmi istatistiktir; kaynağı ve tarihi dosyanın yanında `SOURCE.md` ile belirtilir.
 
 ### 7.4 Paket doğrulama testleri
