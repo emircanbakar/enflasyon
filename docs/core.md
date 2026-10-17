@@ -319,6 +319,8 @@ Public yüzey küçük tutulur: aşağıdaki tablodaki 16 fonksiyon, 1 hata sın
 
 **Sepet kuralları** (`src/basket/`): `normalizeBasket` önce yapıyı doğrular (bilinmeyen `mode`, düz obje olmayan `items` veya sayı olmayan değer → `INVALID_INPUT`), sonra her kalemi anahtara göre sıralı işler (`INVALID_KEY`, `NON_FINITE`, `NEGATIVE_VALUE`; 500 kalem üstü `LIMIT_EXCEEDED`). Değeri 0 olan kalemler sonuçtan çıkarılır; hiç pozitif kalem yoksa `EMPTY_BASKET`. `amount` modunda değerler önce en büyük değere bölünür, sonra toplama oranlanır; böylece çok büyük tutarlarda toplam taşmaz. Dönen `Weights` dondurulmuş, prototipsiz (`Object.create(null)`) ve anahtarları sıralıdır.
 
+**Yardımcı kuralları:** `adjustAmount` ve `realWageChange` tutarların ≥ 0 (`NEGATIVE_VALUE`), oranın −1'den büyük olmasını ister (fiyatlar sıfıra inemez; aksi halde `INVALID_INPUT`); `realWageChange`'de `wageFrom` 0 olamaz. `roundTo` 0–15 ondalık kabul eder, `Number.MAX_SAFE_INTEGER` üstündeki ölçekli değerleri olduğu gibi döndürür ve `-0` yerine `0` verir. `chainSeries` eski serinin örtüşme ve sonrasındaki aylarını, yeni serinin örtüşme öncesindeki aylarını yok sayar; örtüşme ayı serilerden birinde yoksa `NO_OVERLAP` (ayrıntıda hangi seride olmadığı yazılır), birleşik seri 1200 ayı aşarsa `LIMIT_EXCEEDED` fırlatır. Dönen seri dondurulmuş ve prototipsizdir.
+
 ### 5.1 Hata modeli
 
 Tek bir hata sınıfı ve makine tarafından okunabilir kodlar kullanılır. UI, `code` alanına göre Türkçe mesaj üretir; paket mesajları İngilizce ve geliştirici odaklıdır.
