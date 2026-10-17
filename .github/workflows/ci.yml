@@ -75,7 +75,9 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
+      # Yalnızca core ve kök config; apps/web, core build edildikten sonra web job'unda lint edilir
+      # (web dosyaları enflasyon-core'un dist/ tiplerine ihtiyaç duyar).
+      - run: pnpm exec eslint packages/core "*.js"
       - run: pnpm format:check
       - run: pnpm --filter enflasyon-core typecheck
       - run: pnpm --filter enflasyon-core test:coverage
