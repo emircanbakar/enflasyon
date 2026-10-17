@@ -144,14 +144,20 @@ export function YearReport({ summary, years, attribution }: YearReportProps) {
         </p>
         <nav aria-label="Diğer yıllar" className="flex justify-between gap-4">
           {previous ? (
-            <Link href={`/enflasyon/${previous}`} className="underline underline-offset-4">
+            <Link
+              href={`/enflasyon/${previous}`}
+              className="inline-flex min-h-11 items-center underline underline-offset-4"
+            >
               ← {previous}
             </Link>
           ) : (
             <span />
           )}
           {next && (
-            <Link href={`/enflasyon/${next}`} className="underline underline-offset-4">
+            <Link
+              href={`/enflasyon/${next}`}
+              className="inline-flex min-h-11 items-center underline underline-offset-4"
+            >
               {next} →
             </Link>
           )}

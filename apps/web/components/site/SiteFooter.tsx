@@ -18,22 +18,34 @@ export function SiteFooter({ lastPeriod, attribution }: SiteFooterProps) {
       </p>
       <ul className="flex flex-wrap gap-x-4 gap-y-2">
         <li>
-          <Link href="/nasil-hesapliyoruz" className="underline underline-offset-4">
+          <Link
+            href="/nasil-hesapliyoruz"
+            className="inline-flex min-h-6 items-center underline underline-offset-4"
+          >
             Metodoloji
           </Link>
         </li>
         <li>
-          <Link href="/enflasyon" className="underline underline-offset-4">
+          <Link
+            href="/enflasyon"
+            className="inline-flex min-h-6 items-center underline underline-offset-4"
+          >
             Yıllara göre enflasyon
           </Link>
         </li>
         <li>
-          <Link href="/gizlilik" className="underline underline-offset-4">
+          <Link
+            href="/gizlilik"
+            className="inline-flex min-h-6 items-center underline underline-offset-4"
+          >
             Gizlilik
           </Link>
         </li>
         <li>
-          <a href={REPO_URL} className="underline underline-offset-4">
+          <a
+            href={REPO_URL}
+            className="inline-flex min-h-6 items-center underline underline-offset-4"
+          >
             Kaynak kod (GitHub)
           </a>
         </li>

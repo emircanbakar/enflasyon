@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
       <body className="min-h-dvh antialiased">
         <a
           href="#icerik"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:rounded focus:bg-[var(--color-surface)] focus:px-3 focus:py-2"
+          className="fixed top-2 left-2 z-50 -translate-y-24 rounded bg-[var(--color-surface)] px-3 py-2 focus:translate-y-0"
         >
           İçeriğe atla
         </a>

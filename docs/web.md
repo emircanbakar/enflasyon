@@ -413,6 +413,8 @@ Bütçeler CI'da zorunludur; aşılırsa PR birleştirilemez. Ölçümler mobil 
 | Gömülü veri                     | < 20 KB             | Son 6 yıl, 2 ondalık; uzun geçmiş istenirse lazy                        |
 | Lighthouse (4 kategori)         | 100                 | Lighthouse CI, 3 çalışmanın medyanı                                     |
 
+**Ölçüm (web Adım 11, Lighthouse mobil profil, yerel):** ilk yük JS'i taban 135 KB + uygulama 22,8 KB = **157,7 KB**; gömülü RSC + veri 10,9 KB. Performans skoru 97–99, CLS 0, TBT ~60 ms. **LCP 2,0–2,4 s**, 1,5 s bütçesinin üstünde: LCP öğesi sunucuda render edilen başlıktır (FCP ~0,75 s), ama Lighthouse'un simüle yavaş 4G modeli, client bileşeni olmayan içerik sayfalarında bile LCP'yi framework JS'inin (135 KB) yüklenmesine bağlıyor. CI eşiği şimdilik 2,5 s'dir (gerilemeyi yakalar); 1,5 s hedefi Preact/Astro değerlendirmesinin (yukarıda) somut girdisidir.
+
 ### 8.1 Teknikler
 
 - **Fontlar:** `next/font` ile tek değişken font, Latin + Latin Extended (Türkçe karakterler) alt kümesi, `display: swap`, fallback metrik eşlemesi.
@@ -449,6 +451,16 @@ Monorepo'daki ortak `ci.yml`'nin `web` job'u; `apps/web` veya `packages/core` de
 4. gitleaks
 
 Kural: tüm adımlar yeşil olmadan `main`'e birleştirme yok. Testler kapsam yüzdesi için değil, davranış için yazılır; yine de `lib/` için %90 eşiği konur.
+
+**Uygulama (web Adım 11):**
+
+- **Playwright** (`apps/web/e2e/`, `pnpm --filter web e2e`): Chromium masaüstü + WebKit iPhone 15 projeleri, `next start` üretim build'ine karşı. Kapsam: tutar girişi ve URL (tutarlar yalnızca fragment'te), paylaşılan linkin aynı sonucu açması, `/sonuc` önizleme görseli (allowlist parametreler, PNG, `immutable`), başka sayfaya gidip geri dönünce sepetin korunması, bozuk link bandı, JS kapalı sayfa, yıl sayfaları ve 404, sitemap/robots, güvenlik başlıkları.
+- **axe** (`e2e/a11y.spec.ts`): her rota (404 dahil) ve dolu sepet + toplam uyarısı + geçersiz alan durumu, açık ve koyu temada; WCAG 2.0/2.1/2.2 A-AA + best-practice etiketleri, 0 ihlal. İlk çalıştırmada mobilde menü ve altbilgi linklerinin dokunma hedefi (WCAG 2.5.8, 24 px) yakalandı ve düzeltildi.
+- **Yerel HTTP build'i:** CSP'deki `upgrade-insecure-requests`, WebKit'te localhost isteklerini de https'e çevirip tüm JS/CSS'i düşürüyor. E2E ve Lighthouse `pnpm build:local` (`ALLOW_HTTP=1`) ile yalnızca bu direktifi kapatan bir build kullanır; üretim build'i değişmez.
+- **Lighthouse CI** (`lighthouserc.json`, `pnpm --filter web lighthouse`): `/`, `/enflasyon/2025`, `/nasil-hesapliyoruz`, 3 çalışmanın medyanı, mobil profil. Eşikler: performans ≥ 0,95; erişilebilirlik, best practices ve SEO = 1; CLS 0; TBT ≤ 200 ms; LCP ≤ 2,5 s. Raporlar herkese açık geçici depoya değil, yalnızca job artefaktına yazılır.
+- **Bundle bütçesi** (`scripts/bundle-budget.ts`, `pnpm --filter web budget`): taban, client bileşeni olmayan `/gizlilik` sayfasının JS'idir; uygulama JS'i ana sayfadaki diğer chunk'lardır. Bütçeler: uygulama ≤ 50 KB, toplam ≤ 185 KB (taban 135 + 50), gömülü RSC + veri ≤ 20 KB (gzip).
+- **CI:** `web` job'u normal build'den sonra bütçeyi kontrol eder; yeni `quality` job'u `build:local` → Playwright (Chromium + WebKit) → Lighthouse CI çalıştırır, hata olursa raporları 7 günlük artefakt olarak yükler. Preview deploy (Adım 12) gelene kadar testler CI içindeki yerel sunucuya karşı çalışır.
+- **Görsel regresyon** henüz yok: ekran görüntüsü karşılaştırması işletim sistemine ve font render'ına bağlı, CI'da üretilen referanslarla ayrıca kurulacak.
 
 ### 9.2 Kod kalitesi
 

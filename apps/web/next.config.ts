@@ -6,6 +6,8 @@ import { securityHeaders } from "./lib/security-headers";
 parsePublicEnv(process.env);
 
 const isDev = process.env.NODE_ENV === "development";
+// Yalnızca e2e/Lighthouse build'i (`pnpm build:local`) için; bkz. lib/security-headers.ts.
+const allowHttp = process.env.ALLOW_HTTP === "1";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -18,7 +20,7 @@ const nextConfig: NextConfig = {
     return Promise.resolve([
       {
         source: "/(.*)",
-        headers: securityHeaders({ isDev }),
+        headers: securityHeaders({ isDev, allowHttp }),
       },
     ]);
   },

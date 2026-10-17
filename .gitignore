@@ -22,3 +22,8 @@ coverage/
 
 # Next.js build çıktısıyla üretilir
 next-env.d.ts
+
+# Playwright ve Lighthouse CI çıktıları
+test-results/
+playwright-report/
+.lighthouseci/

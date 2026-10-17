@@ -41,6 +41,12 @@ describe("contentSecurityPolicy", () => {
     expect(dev.has("upgrade-insecure-requests")).toBe(false);
   });
 
+  it("yerel HTTP build'inde yalnızca upgrade-insecure-requests kalkar", () => {
+    const local = directives(contentSecurityPolicy({ isDev: false, allowHttp: true }));
+    expect(local.has("upgrade-insecure-requests")).toBe(false);
+    expect(local.get("script-src")).not.toContain("'unsafe-eval'");
+  });
+
   it("verilen dış origin'leri yalnızca connect-src'ye ekler", () => {
     const csp = directives(
       contentSecurityPolicy({ isDev: false, connectOrigins: ["https://plausible.io"] }),

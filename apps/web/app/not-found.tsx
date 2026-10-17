@@ -10,12 +10,15 @@ export default function NotFound() {
       <p className="text-[var(--color-muted)]">Aradığın sayfa yok ya da taşınmış olabilir.</p>
       <ul className="flex flex-wrap gap-4">
         <li>
-          <Link href="/" className="underline underline-offset-4">
+          <Link href="/" className="inline-flex min-h-11 items-center underline underline-offset-4">
             Hesaplayıcıya dön
           </Link>
         </li>
         <li>
-          <Link href="/enflasyon" className="underline underline-offset-4">
+          <Link
+            href="/enflasyon"
+            className="inline-flex min-h-11 items-center underline underline-offset-4"
+          >
             Yıllara göre enflasyon
           </Link>
         </li>

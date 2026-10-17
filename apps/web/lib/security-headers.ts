@@ -17,6 +17,12 @@
 export interface SecurityHeaderOptions {
   /** Geliştirme modunda React hata ayıklaması için `'unsafe-eval'` gerekir. */
   readonly isDev: boolean;
+  /**
+   * Yerel HTTP sunucusunda (e2e, Lighthouse) `upgrade-insecure-requests` kapatılır:
+   * WebKit localhost isteklerini de https'e çevirir ve sayfa kaynakları yüklenemez.
+   * Üretimde her zaman false.
+   */
+  readonly allowHttp?: boolean;
   /** CSP'ye `connect-src` olarak eklenecek dış origin'ler (analitik, Sentry). */
   readonly connectOrigins?: readonly string[];
 }
@@ -31,7 +37,7 @@ function directive(name: string, ...sources: readonly string[]): string {
 }
 
 export function contentSecurityPolicy(options: SecurityHeaderOptions): string {
-  const { isDev, connectOrigins = [] } = options;
+  const { isDev, allowHttp = false, connectOrigins = [] } = options;
   const scriptSources = ["'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : [])];
   return [
     directive("default-src", "'self'"),
@@ -46,7 +52,7 @@ export function contentSecurityPolicy(options: SecurityHeaderOptions): string {
     directive("base-uri", "'self'"),
     directive("form-action", "'self'"),
     directive("frame-ancestors", "'none'"),
-    ...(isDev ? [] : ["upgrade-insecure-requests"]),
+    ...(isDev || allowHttp ? [] : ["upgrade-insecure-requests"]),
   ].join("; ");
 }
 
