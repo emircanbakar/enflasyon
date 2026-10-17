@@ -1,0 +1,21 @@
+# Bağımlılıklar ve çıktılar
+node_modules/
+dist/
+coverage/
+.next/
+.vercel/
+.turbo/
+*.tsbuildinfo
+
+# Ortam ve anahtarlar
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Veri pipeline önbelleği
+.cache/
+
+# Sistem
+.DS_Store
