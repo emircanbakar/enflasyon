@@ -485,12 +485,11 @@ Uygulamanın çalışma anında **hiçbir secret'ı yoktur**. Secret'lar (EVDS a
 | `NEXT_PUBLIC_SITE_URL`         | Vercel env                                             | Hayır    | Canonical ve OG için                                                                 |
 | `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Vercel env                                             | Hayır    | Umami Cloud site kimliği (UUID); yoksa analitik yüklenmez                            |
 | `NEXT_PUBLIC_SENTRY_DSN`       | Vercel env                                             | Hayır    | DSN public olacak şekilde tasarlanmıştır; Sentry'de "allowed domains" ile sınırlanır |
-| `SENTRY_AUTH_TOKEN`            | Vercel env (sadece build)                              | Evet     | Source map yükleme; şu an kullanılmıyor (web Adım 12 notu)                           |
 
 **Kurallar:**
 
 - `NEXT_PUBLIC_` önekli her şey tarayıcıya gider, yani public kabul edilir. Gizli bir değer asla bu önekle tanımlanmaz.
-- `lib/env.ts` Zod ile env doğrular ve **server-only** ile client ayrımını tipte zorlar: `import "server-only"` içeren bir modül client bileşene import edilirse build kırılır.
+- `lib/env/schema.ts` public değerleri Zod ile doğrular (`next.config.ts`, build başında). Sunucuya özel modüller (ör. `lib/data.ts`) **server-only** ile korunur: `import "server-only"` içeren bir modül client bileşene import edilirse build kırılır. Gizli değerleri yalnızca veri pipeline'ı (`scripts/data/`) okur.
 - Repoda sadece `.env.example` bulunur (anahtarlar var, değerler boş). `.env`, `.env.local`, `.env.*.local` gitignore'dadır.
 - `next build` sonrası CI'da `.next/static` içinde bilinen secret desenleri aranır (gitleaks `--no-git` ile build çıktısı taranır). Yanlışlıkla client bundle'a sızan bir değer burada yakalanır.
 
@@ -562,7 +561,7 @@ Core dokümanının 9. bölümündeki kurallar web tarafı için de birebir geç
 **Uygulama (web Adım 12):**
 
 - **Analitik: Umami Cloud** (ücretsiz plan, çerezsiz). Script ve olay isteği `next.config.ts` rewrite'larıyla kendi adresimizden geçer (`/stats/script.js`, `/stats/api/send` → `cloud.umami.is`); CSP'ye dış origin eklenmez, reklam engelleyicilere de takılmaz. `data-exclude-search`/`data-exclude-hash` ile adreslerden sepet ve tutarlar silinir; `data-do-not-track` açık; `data-domains` yalnızca `NEXT_PUBLIC_SITE_URL` alan adını sayar (preview ve yerel build sayılmaz). Olaylar `lib/analytics.ts`'te sabit tiplidir: `hesap-tamamlandi` (sayfa başına bir kez; yalnızca dönem tipi ve mod), `link-kopyalandi`, `paylasildi`, `story-indirildi`, `web-vitals` (LCP, INP, CLS, FCP, TTFB; yıl sayfaları tek grupta). Script yüklenmeden gelen olaylar kuyrukta bekler.
-- **Hata takibi: Sentry, tembel yükleme.** `@sentry/browser` ilk yüke girmez: `instrumentation-client.ts` global hata dinleyicilerini kurar, `app/error.tsx` ve `app/global-error.tsx` React hatalarını yakalar; SDK (28 KB gzip) yalnızca ilk hatada dinamik import edilir. `sendDefaultPii: false`, breadcrumb yok, adreslerden query/fragment ve Referer silinir, sayfa başına en fazla 10 hata. Source map yüklemesi (ve `SENTRY_AUTH_TOKEN`) şimdilik yok: yığın izleri minify edilmiş görünür; ihtiyaç olursa eklenir. CSP `connect-src`'ye yalnızca DSN'deki ingest origin'i eklenir.
+- **Hata takibi: Sentry, tembel yükleme.** `@sentry/browser` ilk yüke girmez: `instrumentation-client.ts` global hata dinleyicilerini kurar, `app/error.tsx` ve `app/global-error.tsx` React hatalarını yakalar; SDK (28 KB gzip) yalnızca ilk hatada dinamik import edilir. `sendDefaultPii: false`, breadcrumb yok, adreslerden query/fragment ve Referer silinir, sayfa başına en fazla 10 hata. Source map yüklemesi şimdilik yok: yığın izleri minify edilmiş görünür; ihtiyaç olursa eklenir. CSP `connect-src`'ye yalnızca DSN'deki ingest origin'i eklenir.
 - **Bütçe etkisi:** web vitals ve script yükleyici her sayfaya girdiği için taban 135 → 141,7 KB; uygulama 22,9 KB, toplam 164,6 KB (bütçe 185 KB içinde).
 - **Veri tazeliği uyarısı** (altbilgide 40 gün) eklenmedi: sayfalar statik olduğu için build zamanında hesaplanan uyarı anlamsız, tarayıcıda hesaplamak her sayfaya JS ekler. Tazelik veri workflow'unun başarısızlık bildirimiyle izlenir.
 - **Vercel yapılandırması** `apps/web/vercel.json`'dadır: install `pnpm install --frozen-lockfile`, build önce `enflasyon-core`'u derler, `ignoreCommand` yalnızca `apps/web`, `packages/core` veya kök paket dosyaları değiştiğinde deploy eder.

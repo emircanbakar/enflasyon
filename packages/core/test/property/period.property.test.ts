@@ -6,7 +6,6 @@ import {
   comparePeriods,
   fromMonthIndex,
   isPeriod,
-  monthsBetween,
   toMonthIndex,
 } from "../../src/series/period.js";
 import type { IndexSeries } from "../../src/types.js";
@@ -33,14 +32,6 @@ describe("dönem kuralları (property)", () => {
     fc.assert(
       fc.property(period, offset, (p, n) => {
         expect(addMonths(addMonths(p, n), -n)).toBe(p);
-      }),
-    );
-  });
-
-  it("monthsBetween(p, addMonths(p, n)) === n", () => {
-    fc.assert(
-      fc.property(period, offset, (p, n) => {
-        expect(monthsBetween(p, addMonths(p, n))).toBe(n);
       }),
     );
   });

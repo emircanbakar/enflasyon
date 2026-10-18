@@ -8,7 +8,6 @@ import {
   comparePeriods,
   fromMonthIndex,
   isPeriod,
-  monthsBetween,
   toMonthIndex,
 } from "../../src/series/period.js";
 import type { IndexSeries, Period } from "../../src/types.js";
@@ -119,17 +118,11 @@ describe("addMonths", () => {
   });
 });
 
-describe("comparePeriods / monthsBetween / assertPeriodOrder", () => {
+describe("comparePeriods / assertPeriodOrder", () => {
   it("dönemleri karşılaştırır", () => {
     expect(comparePeriods("2025-12", "2026-01")).toBeLessThan(0);
     expect(comparePeriods("2026-01", "2026-01")).toBe(0);
     expect(comparePeriods("2026-02", "2026-01")).toBeGreaterThan(0);
-  });
-
-  it("aradaki ay sayısını işaretli döndürür", () => {
-    expect(monthsBetween("2025-09", "2026-09")).toBe(12);
-    expect(monthsBetween("2026-09", "2025-09")).toBe(-12);
-    expect(monthsBetween("2026-09", "2026-09")).toBe(0);
   });
 
   it("from ≤ to ise sessiz kalır", () => {

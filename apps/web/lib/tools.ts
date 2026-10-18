@@ -10,11 +10,6 @@ import { userMessage } from "./errors";
  * kullanıcının kendi sepeti. Hesap `enflasyon-core` ile yapılır.
  */
 
-export interface Basis {
-  /** `since` → son veri ayı enflasyonu (oran). */
-  readonly rate: number;
-}
-
 export interface ToolInput {
   readonly since: Period;
   readonly values: BasketValues;

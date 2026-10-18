@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findLeakedSecrets, parsePublicEnv, parseServerEnv } from "../lib/env/schema";
+import { findLeakedSecrets, parsePublicEnv } from "../lib/env/schema";
 
 describe("parsePublicEnv", () => {
   it("boş ortamı kabul eder (tüm değerler opsiyonel)", () => {
@@ -56,17 +56,5 @@ describe("findLeakedSecrets", () => {
 
   it("public olmayan gizli değerleri sorun saymaz", () => {
     expect(findLeakedSecrets({ EVDS_API_KEY: "x", SENTRY_AUTH_TOKEN: "y" })).toEqual([]);
-  });
-});
-
-describe("parseServerEnv", () => {
-  it("anahtar yokken de çalışır (uygulama çalışırken EVDS gerekmez)", () => {
-    expect(parseServerEnv({})).toEqual({});
-  });
-
-  it("değerleri kırpar ve boş değerleri yok sayar", () => {
-    expect(parseServerEnv({ EVDS_API_KEY: "  abc  ", SENTRY_AUTH_TOKEN: " " })).toEqual({
-      EVDS_API_KEY: "abc",
-    });
   });
 });

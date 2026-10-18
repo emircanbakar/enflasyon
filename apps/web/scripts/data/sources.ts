@@ -75,8 +75,6 @@ export function fromTuikSnapshot(indexJson: unknown, weightJson: unknown): Sourc
 // ---------------------------------------------------------------- EVDS3
 
 export const EVDS_BASE_URL = "https://evds3.tcmb.gov.tr/igmevdsms-dis";
-/** Bir istekte en fazla 1000 gözlem döner (EVDS Web Servis Kılavuzu). */
-export const EVDS_MAX_OBSERVATIONS = 1000;
 
 export const indexCode = (key: SeriesKey): string => `TP.TUKFIY2025.${coicopOf(key)}`;
 export const weightCode = (key: CategoryKey): string => `TP.TUKFIYAGRLK.${coicopOf(key)}`;

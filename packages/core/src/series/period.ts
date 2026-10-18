@@ -77,11 +77,6 @@ export function comparePeriods(a: Period, b: Period): number {
   return toMonthIndex(a) - toMonthIndex(b);
 }
 
-/** `from`'dan `to`'ya kaç ay olduğunu döndürür (`to` önceyse negatif). */
-export function monthsBetween(from: Period, to: Period): number {
-  return toMonthIndex(to) - toMonthIndex(from);
-}
-
 /** `from > to` ise `PERIOD_ORDER` fırlatır. */
 export function assertPeriodOrder(from: Period, to: Period): void {
   if (comparePeriods(from, to) > 0) {
