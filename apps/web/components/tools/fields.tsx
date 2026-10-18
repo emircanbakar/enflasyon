@@ -6,7 +6,7 @@ import { parseValueInput } from "@/lib/basket-state";
 import { formatMonth } from "@/lib/format";
 
 const inputClass =
-  "h-11 w-full rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] px-3 aria-[invalid=true]:border-[var(--color-danger)]";
+  "h-11 w-full rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] px-3 transition-colors hover:border-[var(--color-rule)] focus:bg-[var(--color-card)] aria-[invalid=true]:border-[var(--color-danger)]";
 
 interface MoneyInputProps {
   readonly label: string;
@@ -40,7 +40,7 @@ export function MoneyInput({ label, onChange }: MoneyInputProps) {
             setInvalid(parsed === "invalid");
             onChange(parsed === "invalid" ? null : parsed);
           }}
-          className={`${inputClass} text-right tabular-nums`}
+          className={`${inputClass} figures text-right`}
         />
         <span aria-hidden="true" className="w-4 text-[var(--color-muted)]">
           ₺

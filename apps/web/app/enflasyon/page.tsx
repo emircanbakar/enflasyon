@@ -20,27 +20,42 @@ export default function YearsPage() {
       return summary ? [summary] : [];
     });
 
+  const max = Math.max(...rows.map((summary) => summary.yearToDate), 0);
+
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight">Yıllara göre enflasyon</h1>
+    <div className="max-w-4xl space-y-8">
+      <header className="max-w-3xl space-y-3">
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+          Yıllara göre enflasyon
+        </h1>
         <p className="text-lg text-[var(--color-muted)]">
           Resmi tüketici fiyat endeksi (TÜFE), Aralık&apos;tan Aralık&apos;a değişim. Devam eden yıl
           için yılbaşından beri değişim gösterilir.
         </p>
       </header>
-      <ul className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
+      <ul className="rounded-xl bg-[var(--color-card)] p-2 sm:p-3">
         {rows.map((summary) => (
           <li key={summary.year}>
             <Link
               href={`/enflasyon/${summary.year}`}
-              className="flex min-h-11 items-center justify-between gap-4 px-2 py-3 hover:bg-[var(--color-card)]"
+              className="grid min-h-14 grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-4 rounded-lg px-3 py-2 transition-colors hover:bg-[var(--color-surface)]"
             >
-              <span className="font-medium">{summary.year}</span>
-              <span className="tabular-nums">
+              <span className="figures text-lg font-semibold">{summary.year}</span>
+              <span
+                aria-hidden="true"
+                className="h-3 overflow-hidden rounded-full bg-[var(--color-surface)]"
+              >
+                <span
+                  className="block h-full rounded-full bg-[var(--color-series-official)]"
+                  style={{ width: `${String((summary.yearToDate / max) * 100)}%` }}
+                />
+              </span>
+              <span className="figures text-right">
                 {formatPercent(summary.yearToDate)}
                 {!summary.complete && (
-                  <span className="text-sm text-[var(--color-muted)]"> (yılbaşından beri)</span>
+                  <span className="block font-sans text-xs text-[var(--color-muted)]">
+                    yılbaşından beri
+                  </span>
                 )}
               </span>
             </Link>

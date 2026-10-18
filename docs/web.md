@@ -300,6 +300,8 @@ Tüm sayılar `Intl.NumberFormat("tr-TR")` ile gösterilir: `%48,1`, `29.624 ₺
 
 ## 6. Grafikler ve erişilebilirlik
 
+**Görsel dil (yeniden tasarım, 18 Ekim 2026):** "market fişi" dili ve çalışma masası düzeni; tokenlar, imza öğesi ve bileşen kuralları kök dizindeki `DESIGN.md`'de. Masaüstünde form ve sabit sonuç paneli yan yana; mobilde sonuç ekranda değilken altta özet çubuğu çıkar.
+
 Grafikler hazır bir kütüphaneyle değil, React + SVG ile elle yazılır; hesap tarafında sadece `d3-scale`, `d3-shape` ve `d3-array` kullanılır (DOM'a dokunmayan, tree-shake edilebilen modüller). Hedef: tüm grafik kodu < 15 KB gzip. Bu, case study'nin ana konusu olacak karar: "neden Recharts/Chart.js değil" sorusunun cevabı ölçülmüş bundle farkıyla birlikte yazılır.
 
 ### 6.1 Grafik envanteri

@@ -7,6 +7,8 @@ import { compareRates, formatMonth, formatPercent } from "@/lib/format";
 
 interface ResultCardProps {
   readonly outcome: CalcOutcome;
+  /** Kartın üstündeki dönem seçici. */
+  readonly period?: ReactNode;
   /** Kartın altına eklenecek içerik (paylaşım butonları). */
   readonly children?: ReactNode;
 }
@@ -16,20 +18,26 @@ interface ResultCardProps {
  * karşılaştırma ve katkı dökümü grafiği (tablo görünümüyle).
  * Özet cümle `aria-live="polite"` bölgesinde ekran okuyucuya duyurulur.
  */
-export function ResultCard({ outcome, children }: ResultCardProps) {
+export function ResultCard({ outcome, period, children }: ResultCardProps) {
   return (
     <section
       aria-labelledby="sonuc-baslik"
-      className="rounded-xl border border-[var(--color-line)] bg-[var(--color-card)] p-5"
+      className="rounded-xl bg-[var(--color-card)] p-5 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_8px_24px_-12px_rgb(0_0_0/0.18)] sm:p-6"
     >
       <h2 id="sonuc-baslik" className="sr-only">
         Sonuç
       </h2>
+      {period}
+      <hr className="rule-dashed my-5" />
       <div aria-live="polite" aria-atomic="true">
         {outcome.status === "empty" && (
-          <p className="text-[var(--color-muted)]">
-            Bir harcama kalemi gir; kişisel enflasyonun burada görünecek.
-          </p>
+          <div className="space-y-2 py-2">
+            <p className="text-lg font-medium">Sonucun burada görünecek.</p>
+            <p className="text-[var(--color-muted)]">
+              Bir harcama kalemi gir ya da &quot;Türkiye ortalaması ile doldur&quot;u dene; kişisel
+              enflasyonun yazdıkça hesaplanır.
+            </p>
+          </div>
         )}
         {outcome.status === "error" && (
           <p role="alert" className="text-[var(--color-danger)]">
@@ -53,22 +61,24 @@ function Summary({ outcome }: { readonly outcome: Ok }) {
       ? "seninkiyle aynı."
       : `senden ${points} ${direction === "yüksek" ? "düşük" : "yüksek"}.`;
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <p className="text-sm text-[var(--color-muted)]">
         {formatMonth(outcome.from)} → {formatMonth(outcome.to)}
       </p>
-      <p className="text-lg">
-        Senin enflasyonun{" "}
-        <strong className="block text-5xl font-semibold tracking-tight text-[var(--color-accent)]">
+      <p>
+        <span className="block text-base">Senin enflasyonun</span>
+        <strong className="block text-6xl leading-none font-semibold tracking-tight tabular-nums text-[var(--color-accent)]">
           {formatPercent(outcome.personal)}
         </strong>
       </p>
-      <p>
-        Resmi:{" "}
-        <strong className="tabular-nums text-[var(--color-official)]">
-          {formatPercent(outcome.official)}
-        </strong>{" "}
-        — {comparison}
+      <p className="flex flex-wrap items-baseline gap-x-2">
+        <span>
+          Resmi:{" "}
+          <strong className="figures font-semibold text-[var(--color-official)]">
+            {formatPercent(outcome.official)}
+          </strong>
+        </span>
+        <span className="text-[var(--color-muted)]">— {comparison}</span>
       </p>
       {outcome.singleItem && (
         <p className="text-sm text-[var(--color-muted)]">
@@ -88,7 +98,7 @@ function Contributions({ outcome }: { readonly outcome: Ok }) {
         ? `En büyük pay ${top.label} grubunda: enflasyonunun ${formatPercent(top.share, 0)} kadarı buradan geliyor.`
         : "Bazı gruplarda fiyatlar düştü; katkılar puan olarak gösteriliyor.";
   return (
-    <div className="mt-6">
+    <div className="mt-6 border-t border-[var(--color-line)] pt-5">
       <ContributionBars contributions={outcome.contributions} summary={summary} />
     </div>
   );

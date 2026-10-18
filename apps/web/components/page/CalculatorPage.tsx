@@ -6,16 +6,25 @@ import { formatMonth } from "@/lib/format";
 export function CalculatorPage() {
   const data = loadCalculatorData();
   return (
-    <div className="space-y-12">
-      <section aria-labelledby="baslik" className="space-y-4">
-        <h1 id="baslik" className="text-4xl font-semibold tracking-tight">
-          Resmi enflasyon herkes için aynı. Seninki değil.
-        </h1>
-        <p className="text-lg text-[var(--color-muted)]">
-          Harcamalarını gir, resmi fiyat endekslerini senin dağılımına göre ağırlıklandıralım.
-        </p>
+    <div className="space-y-8 lg:space-y-10">
+      <section
+        aria-labelledby="baslik"
+        className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3"
+      >
+        <div className="max-w-2xl space-y-3">
+          <h1
+            id="baslik"
+            className="text-3xl leading-tight font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem]"
+          >
+            Resmi enflasyon herkes için aynı. Seninki değil.
+          </h1>
+          <p className="text-lg text-[var(--color-muted)]">
+            Harcamalarını gir, resmi fiyat endekslerini senin dağılımına göre ağırlıklandıralım.
+          </p>
+        </div>
         <p className="text-sm text-[var(--color-muted)]">
-          Son veri: {formatMonth(data.lastPeriod)} (TÜİK)
+          Son veri: <span className="text-[var(--color-ink)]">{formatMonth(data.lastPeriod)}</span>{" "}
+          (TÜİK)
         </p>
       </section>
       <noscript>

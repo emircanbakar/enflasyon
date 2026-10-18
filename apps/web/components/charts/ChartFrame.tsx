@@ -29,7 +29,7 @@ export function ChartFrame({ title, summary, legend, chart, table }: ChartFrameP
     <figure className="space-y-3">
       <figcaption className="space-y-1">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 id={titleId} className="font-medium">
+          <h3 id={titleId} className="font-semibold">
             {title}
           </h3>
           <button

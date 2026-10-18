@@ -12,7 +12,9 @@ interface ShareActionsProps {
 }
 
 const buttonClass =
-  "min-h-11 rounded-md border border-[var(--color-line)] px-3 font-medium disabled:opacity-50";
+  "min-h-11 rounded-md bg-[var(--color-surface)] px-3.5 text-sm font-medium transition-colors hover:bg-[var(--color-line)] disabled:opacity-50";
+const primaryClass =
+  "min-h-11 rounded-md bg-[var(--color-accent)] px-3.5 text-sm font-medium text-[var(--color-accent-ink)] transition-opacity hover:opacity-90";
 
 /**
  * Paylaşım (docs/web.md, Bölüm 2.2 adım 3 ve 7): linki kopyala, sistem paylaşımı,
@@ -83,11 +85,12 @@ export function ShareActions({ state, lastPeriod }: ShareActionsProps) {
 
   return (
     <div className="mt-6 space-y-3 border-t border-[var(--color-line)] pt-5">
+      <h3 className="text-sm font-medium">Sonucunu paylaş</h3>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => void copy()} className={buttonClass}>
           Linki kopyala
         </button>
-        <button type="button" onClick={() => void share()} className={buttonClass}>
+        <button type="button" onClick={() => void share()} className={primaryClass}>
           Paylaş
         </button>
         <button type="button" onClick={() => void story()} disabled={busy} className={buttonClass}>

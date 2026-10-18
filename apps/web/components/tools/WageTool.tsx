@@ -40,7 +40,7 @@ export function WageTool({ data, indices, values, months }: WageToolProps) {
 
   return (
     <section aria-labelledby="maas-baslik" className="space-y-4">
-      <h3 id="maas-baslik" className="font-medium">
+      <h3 id="maas-baslik" className="text-lg font-semibold">
         Maaşın enflasyona yenildi mi?
       </h3>
       <div className="grid gap-3 sm:grid-cols-3">

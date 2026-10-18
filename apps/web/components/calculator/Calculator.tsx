@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { availablePeriods, toIndexSet } from "enflasyon-core";
 import { track } from "@/lib/analytics";
 import { availableTargets, calculate } from "@/lib/calc";
+import { formatPercent } from "@/lib/format";
 import type { CalculatorData } from "@/lib/calc";
 import { officialProfile } from "@/lib/profiles";
 import { annualSeries } from "@/lib/series";
@@ -60,60 +61,115 @@ export function Calculator({ data }: CalculatorProps) {
     [state.values, data, indices],
   );
 
+  const card = "rounded-xl bg-[var(--color-card)] p-5 sm:p-6";
+
+  // Mobilde sonuç formun altında kalır; sonuç ekranda değilken altta kısa özet gösterilir.
+  const resultRef = useRef<HTMLDivElement>(null);
+  const [resultVisible, setResultVisible] = useState(true);
+  useEffect(() => {
+    const element = resultRef.current;
+    if (element === null || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setResultVisible(entry?.isIntersecting ?? true);
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-8 lg:space-y-10">
       {urlWasInvalid && (
-        <p role="status" className="rounded-md border border-[var(--color-line)] p-3 text-sm">
+        <p role="status" className="rounded-lg bg-[var(--color-card)] p-3 text-sm">
           Linkteki sepet okunamadı; boş bir sepetle başladık.
         </p>
       )}
-      <BasketForm state={state} dispatch={dispatch} profile={profile} />
-      <div className="space-y-4">
-        <PeriodPicker
-          kind={state.period}
-          at={at}
-          from={from}
-          targets={targets}
-          starts={starts}
-          onKind={(period) => {
-            dispatch({ type: "setPeriod", period });
-          }}
-          onAt={(value) => {
-            dispatch({ type: "setAt", at: value });
-          }}
-          onFrom={(value) => {
-            dispatch({ type: "setFrom", from: value });
-          }}
-        />
-        <ResultCard outcome={outcome}>
-          {outcome.status === "ok" && (
-            <ShareActions state={{ ...state, at, from }} lastPeriod={data.lastPeriod} />
-          )}
-        </ResultCard>
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)] lg:gap-8">
+        <BasketForm state={state} dispatch={dispatch} profile={profile} />
+        {/* Masaüstünde sonuç paneli formun yanında sabit kalır; uzarsa kendi içinde kayar. */}
+        <div
+          ref={resultRef}
+          id="sonuc-paneli"
+          className="scroll-mt-4 space-y-5 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto lg:overscroll-contain"
+        >
+          <ResultCard
+            outcome={outcome}
+            period={
+              <PeriodPicker
+                kind={state.period}
+                at={at}
+                from={from}
+                targets={targets}
+                starts={starts}
+                onKind={(period) => {
+                  dispatch({ type: "setPeriod", period });
+                }}
+                onAt={(value) => {
+                  dispatch({ type: "setAt", at: value });
+                }}
+                onFrom={(value) => {
+                  dispatch({ type: "setFrom", from: value });
+                }}
+              />
+            }
+          >
+            {outcome.status === "ok" && (
+              <ShareActions state={{ ...state, at, from }} lastPeriod={data.lastPeriod} />
+            )}
+          </ResultCard>
+        </div>
       </div>
-      <section
-        aria-label="Zaman serisi"
-        className="rounded-xl border border-[var(--color-line)] bg-[var(--color-card)] p-5"
-      >
+      {outcome.status === "ok" && !resultVisible && (
+        <a
+          href="#sonuc-paneli"
+          className="fixed inset-x-3 bottom-3 z-20 flex min-h-14 items-center justify-between gap-3 rounded-xl bg-[var(--color-shell)] px-4 text-[var(--color-shell-ink)] shadow-[0_8px_24px_-8px_rgb(0_0_0/0.45)] lg:hidden"
+        >
+          <span className="flex min-w-0 items-baseline gap-2">
+            <span className="text-sm text-[var(--color-shell-muted)]">
+              <span aria-hidden="true">Sen</span>
+              <span className="sr-only">Senin enflasyonun</span>
+            </span>
+            <strong className="text-xl text-[var(--color-shell-accent)] tabular-nums">
+              {formatPercent(outcome.personal)}
+            </strong>
+            <span className="text-sm whitespace-nowrap text-[var(--color-shell-muted)]">
+              Resmi {formatPercent(outcome.official)}
+            </span>
+          </span>
+          <span className="shrink-0 text-sm font-medium">Sonuca git ↓</span>
+        </a>
+      )}
+      <section aria-label="Zaman serisi" className={card}>
         <TimeSeriesChart points={series} />
         <p className="mt-3 text-sm text-[var(--color-muted)]">
           Kişisel çizgi bugünkü sepetinin geçmiş yıllara uygulanmasıdır; o yıllardaki harcama
           dağılımın farklı olmuş olabilir.
         </p>
       </section>
-      <section
-        aria-label="Detay araçları"
-        className="space-y-8 rounded-xl border border-[var(--color-line)] bg-[var(--color-card)] p-5"
-      >
-        <PastAmountTool data={data} indices={indices} values={state.values} months={toolMonths} />
-        <WageTool data={data} indices={indices} values={state.values} months={toolMonths} />
-        <p className="text-sm text-[var(--color-muted)]">
-          Sepetin doluysa sonuçlar önce senin enflasyonunla, sonra resmi enflasyonla verilir.
-        </p>
+      <section aria-labelledby="araclar-baslik" className="space-y-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="araclar-baslik" className="text-xl font-semibold">
+            Hesap araçları
+          </h2>
+          <p className="text-sm text-[var(--color-muted)]">
+            Sepetin doluysa sonuçlar önce senin enflasyonunla, sonra resmi enflasyonla verilir.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className={card}>
+            <PastAmountTool
+              data={data}
+              indices={indices}
+              values={state.values}
+              months={toolMonths}
+            />
+          </div>
+          <div className={card}>
+            <WageTool data={data} indices={indices} values={state.values} months={toolMonths} />
+          </div>
+        </div>
       </section>
-      <p className="text-sm text-[var(--color-muted)]">
-        {data.attribution} Hesap tarayıcında yapılır; girdiğin tutarlar hiçbir sunucuya gönderilmez.
-      </p>
     </div>
   );
 }

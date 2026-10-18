@@ -9,8 +9,8 @@ interface YearReportProps {
   readonly attribution: string;
 }
 
-const cell = "px-2 py-1.5 text-right tabular-nums";
-const headCell = "px-2 py-1.5 font-medium";
+const cell = "figures px-3 py-2 text-right";
+const headCell = "px-3 py-2 font-medium text-[var(--color-muted)]";
 
 /** Bir yılın resmi enflasyon özeti: anahtar rakamlar, aylık tablo, grup tablosu. */
 export function YearReport({ summary, years, attribution }: YearReportProps) {
@@ -21,8 +21,10 @@ export function YearReport({ summary, years, attribution }: YearReportProps) {
 
   return (
     <article className="space-y-10">
-      <header className="space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight">{summary.year} enflasyonu</h1>
+      <header className="max-w-3xl space-y-4">
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+          {summary.year} enflasyonu
+        </h1>
         <p className="text-lg">{yearLead(summary)}</p>
         {!summary.complete && (
           <p className="text-sm text-[var(--color-muted)]">
@@ -31,7 +33,7 @@ export function YearReport({ summary, years, attribution }: YearReportProps) {
         )}
       </header>
 
-      <dl className="grid gap-3 sm:grid-cols-3">
+      <dl className="grid gap-3 sm:grid-cols-3 lg:max-w-4xl">
         <Stat label={ytdLabel} value={formatPercent(summary.yearToDate)} />
         {!summary.complete && (
           <Stat
@@ -44,91 +46,101 @@ export function YearReport({ summary, years, attribution }: YearReportProps) {
         )}
       </dl>
 
-      <section aria-labelledby="aylik" className="space-y-3">
-        <h2 id="aylik" className="text-xl font-semibold">
-          Aylık resmi enflasyon
-        </h2>
-        <table className="w-full text-sm">
-          <caption className="sr-only">
-            {summary.year} yılında aylık ve yıllık TÜFE değişimi
-          </caption>
-          <thead>
-            <tr className="border-b border-[var(--color-line)] text-left">
-              <th scope="col" className={headCell}>
-                Ay
-              </th>
-              <th scope="col" className={`${headCell} text-right`}>
-                Aylık
-              </th>
-              <th scope="col" className={`${headCell} text-right`}>
-                Yıllık
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {summary.months.map((row) => (
-              <tr key={row.period} className="border-b border-[var(--color-line)]">
-                <th scope="row" className="px-2 py-1.5 text-left font-normal">
-                  {formatMonth(row.period)}
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        <section
+          aria-labelledby="aylik"
+          className="space-y-3 rounded-xl bg-[var(--color-card)] p-5 sm:p-6"
+        >
+          <h2 id="aylik" className="text-xl font-semibold">
+            Aylık resmi enflasyon
+          </h2>
+          <table className="w-full text-sm">
+            <caption className="sr-only">
+              {summary.year} yılında aylık ve yıllık TÜFE değişimi
+            </caption>
+            <thead>
+              <tr className="border-b border-[var(--color-line)] text-left">
+                <th scope="col" className={headCell}>
+                  Ay
                 </th>
-                <td className={cell}>{formatPercent(row.monthly)}</td>
-                <td className={cell}>{row.annual === null ? "—" : formatPercent(row.annual)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      <section aria-labelledby="gruplar" className="space-y-3">
-        <h2 id="gruplar" className="text-xl font-semibold">
-          Harcama gruplarına göre
-        </h2>
-        <p className="text-sm text-[var(--color-muted)]">
-          Değişim: önceki yılın Aralık ayından {formatMonth(summary.lastPeriod)} ayına. Ağırlık:
-          TÜİK sepetinde grubun {summary.year} yılı payı.
-        </p>
-        <table className="w-full text-sm">
-          <caption className="sr-only">
-            {summary.year} yılında harcama gruplarının fiyat değişimi ve sepet ağırlığı
-          </caption>
-          <thead>
-            <tr className="border-b border-[var(--color-line)] text-left">
-              <th scope="col" className={headCell}>
-                Grup
-              </th>
-              <th scope="col" className={`${headCell} text-right`}>
-                Değişim
-              </th>
-              <th scope="col" className={`${headCell} text-right`}>
-                Ağırlık
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {summary.groups.map((group) => (
-              <tr key={group.key} className="border-b border-[var(--color-line)]">
-                <th scope="row" className="px-2 py-1.5 text-left font-normal">
-                  {group.label}
+                <th scope="col" className={`${headCell} text-right`}>
+                  Aylık
                 </th>
-                <td className={cell}>{formatPercent(group.change)}</td>
-                <td className={cell}>
-                  {group.weight === null ? "—" : formatPercent(group.weight / 100)}
-                </td>
+                <th scope="col" className={`${headCell} text-right`}>
+                  Yıllık
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+            </thead>
+            <tbody>
+              {summary.months.map((row) => (
+                <tr key={row.period} className="border-b border-[var(--color-line)]">
+                  <th scope="row" className="px-3 py-2 text-left font-normal">
+                    {formatMonth(row.period)}
+                  </th>
+                  <td className={cell}>{formatPercent(row.monthly)}</td>
+                  <td className={cell}>{row.annual === null ? "—" : formatPercent(row.annual)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
 
-      <section className="space-y-3 rounded-lg bg-[var(--color-card)] p-5">
-        <h2 className="text-xl font-semibold">Bu rakam senin için ne kadar?</h2>
-        <p>
-          Resmi rakam, ortalama bir hanenin harcama dağılımına göre hesaplanır. Kirası, mutfak
-          masrafı ya da ulaşım payı farklı olanın enflasyonu da farklıdır.
-        </p>
+        <section
+          aria-labelledby="gruplar"
+          className="space-y-3 rounded-xl bg-[var(--color-card)] p-5 sm:p-6"
+        >
+          <h2 id="gruplar" className="text-xl font-semibold">
+            Harcama gruplarına göre
+          </h2>
+          <p className="text-sm text-[var(--color-muted)]">
+            Değişim: önceki yılın Aralık ayından {formatMonth(summary.lastPeriod)} ayına. Ağırlık:
+            TÜİK sepetinde grubun {summary.year} yılı payı.
+          </p>
+          <table className="w-full text-sm">
+            <caption className="sr-only">
+              {summary.year} yılında harcama gruplarının fiyat değişimi ve sepet ağırlığı
+            </caption>
+            <thead>
+              <tr className="border-b border-[var(--color-line)] text-left">
+                <th scope="col" className={headCell}>
+                  Grup
+                </th>
+                <th scope="col" className={`${headCell} text-right`}>
+                  Değişim
+                </th>
+                <th scope="col" className={`${headCell} text-right`}>
+                  Ağırlık
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {summary.groups.map((group) => (
+                <tr key={group.key} className="border-b border-[var(--color-line)]">
+                  <th scope="row" className="px-3 py-2 text-left font-normal">
+                    {group.label}
+                  </th>
+                  <td className={cell}>{formatPercent(group.change)}</td>
+                  <td className={cell}>
+                    {group.weight === null ? "—" : formatPercent(group.weight / 100)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-[var(--color-shell)] p-6 text-[var(--color-shell-ink)] sm:p-8">
+        <div className="max-w-xl space-y-2">
+          <h2 className="text-xl font-semibold">Bu rakam senin için ne kadar?</h2>
+          <p className="text-[var(--color-shell-muted)]">
+            Resmi rakam, ortalama bir hanenin harcama dağılımına göre hesaplanır. Kirası, mutfak
+            masrafı ya da ulaşım payı farklı olanın enflasyonu da farklıdır.
+          </p>
+        </div>
         <Link
           href="/"
-          className="inline-flex min-h-11 items-center rounded-md bg-[var(--color-accent)] px-4 font-medium text-[var(--color-surface)]"
+          className="inline-flex min-h-11 items-center rounded-md bg-[var(--color-accent)] px-4 font-medium text-[var(--color-accent-ink)] transition-opacity hover:opacity-90"
         >
           Kendi enflasyonunu hesapla
         </Link>
@@ -169,9 +181,9 @@ export function YearReport({ summary, years, attribution }: YearReportProps) {
 
 function Stat({ label, value }: { readonly label: string; readonly value: string }) {
   return (
-    <div className="rounded-lg bg-[var(--color-card)] p-4">
+    <div className="rounded-xl bg-[var(--color-card)] p-5">
       <dt className="text-sm text-[var(--color-muted)]">{label}</dt>
-      <dd className="text-2xl font-semibold tabular-nums">{value}</dd>
+      <dd className="mt-1 text-3xl font-semibold tracking-tight tabular-nums">{value}</dd>
     </div>
   );
 }

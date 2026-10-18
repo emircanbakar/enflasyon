@@ -1,6 +1,7 @@
 "use client";
 
 import type { BasketMode } from "@/lib/basket-url";
+import { segmentedGroup, segmentedInput, segmentedOption } from "./segmented";
 
 interface ModeToggleProps {
   readonly mode: BasketMode;
@@ -15,13 +16,10 @@ const OPTIONS: readonly { readonly value: BasketMode; readonly label: string }[]
 /** TL / yüzde giriş modu; yerel radio grubu (klavye ve ekran okuyucu desteği hazır gelir). */
 export function ModeToggle({ mode, onChange }: ModeToggleProps) {
   return (
-    <fieldset className="flex flex-wrap items-center gap-3">
+    <fieldset className={segmentedGroup}>
       <legend className="sr-only">Harcamaları nasıl gireceksin?</legend>
       {OPTIONS.map((option) => (
-        <label
-          key={option.value}
-          className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-[var(--color-line)] px-3 has-[:checked]:border-[var(--color-accent)] has-[:checked]:font-medium"
-        >
+        <label key={option.value} className={segmentedOption}>
           <input
             type="radio"
             name="giris-modu"
@@ -30,7 +28,7 @@ export function ModeToggle({ mode, onChange }: ModeToggleProps) {
             onChange={() => {
               onChange(option.value);
             }}
-            className="accent-[var(--color-accent)]"
+            className={segmentedInput}
           />
           {option.label}
         </label>

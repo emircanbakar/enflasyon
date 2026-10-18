@@ -1,29 +1,51 @@
 @import "tailwindcss";
 
-/* Tasarım token'ları: açık tema varsayılan, koyu tema sistem tercihine göre. */
+/*
+ * Görsel dil: market fişi. Fiş dünyası yalnızca tip, renk, yoğunluk ve tek bir
+ * imza (fiş satırları: noktalı bağlar, kesik ayraçlar, kalın TOPLAM, yırtık kenar)
+ * getirir; kontroller standart web bileşenleridir.
+ *
+ * Açık tema varsayılan, koyu tema sistem tercihine göre.
+ */
 @theme {
-  --color-surface: #ffffff;
-  --color-card: #f7f7f5;
-  --color-line: #dcdcd7;
-  --color-ink: #111418;
-  --color-muted: #5b6470;
+  /* Zemin: tezgâh grisi. Kâğıt: fiş ve kartlar. */
+  --color-surface: #eceeef;
+  --color-card: #ffffff;
+  --color-shell: #15171a;
+  --color-shell-ink: #f4f5f6;
+  --color-shell-muted: #aab1ba;
+  --color-shell-accent: #fb923c;
+  --color-line: #d6dade;
+  --color-rule: #a7aeb6;
+  --color-ink: #15171a;
+  --color-muted: #59616b;
   --color-accent: #c2410c;
+  --color-accent-ink: #ffffff;
   --color-official: #2f5d8a;
   --color-danger: #b42318;
   /* Grafik serileri: dataviz doğrulayıcısından geçti (kart yüzeyinde ≥ 3:1, CVD ΔE ≥ 24). */
   --color-series-personal: #c2410c;
   --color-series-official: #2a78d6;
   --color-grid: #e4e4df;
+
+  /* Fiş rakamları: veri ve ölçüm için eş genişlikli yazı. */
+  --font-figures:
+    ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-surface: #0f1115;
-    --color-card: #171a20;
+    --color-surface: #0e1013;
+    --color-card: #181b20;
+    --color-shell: #07080a;
+    --color-shell-ink: #eceef1;
+    --color-shell-muted: #9aa3ae;
     --color-line: #2c313a;
-    --color-ink: #eef0f3;
+    --color-rule: #4a525d;
+    --color-ink: #eceef1;
     --color-muted: #a3acb8;
     --color-accent: #fb923c;
+    --color-accent-ink: #0e1013;
     --color-official: #7fb2e5;
     --color-danger: #f97066;
     --color-series-personal: #d95926;
@@ -35,11 +57,57 @@
 html {
   background: var(--color-surface);
   color: var(--color-ink);
+  caret-color: var(--color-accent);
+  scrollbar-color: var(--color-rule) var(--color-surface);
+  -webkit-text-size-adjust: 100%;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 22%, transparent);
+  color: inherit;
 }
 
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+/* Fiş rakamları: tablo hizalı, eş genişlikli. */
+.figures {
+  font-family: var(--font-figures);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Fiş satırı: etiketle tutar arasındaki noktalı bağ. */
+.leader {
+  flex: 1 1 auto;
+  min-width: 1rem;
+  align-self: flex-end;
+  margin-bottom: 0.7rem;
+  border-bottom: 2px dotted var(--color-rule);
+}
+
+/* Fiş ayracı: kesik çizgi. */
+.rule-dashed {
+  border: 0;
+  border-top: 1px dashed var(--color-rule);
+}
+
+/* Fişin alt kenarı: yırtılmış kâğıt (CSS maskesi; görsel öğe, içerik taşımaz). */
+.receipt {
+  --tear: 10px;
+  padding-bottom: calc(var(--tear) + 1.25rem);
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--tear)) no-repeat,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+      calc(var(--tear) * 2) var(--tear) repeat-x;
 }
 
 @media (prefers-reduced-motion: reduce) {

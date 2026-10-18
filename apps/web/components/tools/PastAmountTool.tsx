@@ -27,7 +27,7 @@ export function PastAmountTool({ data, indices, values, months }: PastAmountTool
 
   return (
     <section aria-labelledby="eski-tutar-baslik" className="space-y-4">
-      <h3 id="eski-tutar-baslik" className="font-medium">
+      <h3 id="eski-tutar-baslik" className="text-lg font-semibold">
         O zamanki tutar bugün kaç TL?
       </h3>
       <div className="grid gap-3 sm:grid-cols-2">

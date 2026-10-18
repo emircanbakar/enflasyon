@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
           İçeriğe atla
         </a>
         <SiteHeader />
-        <main id="icerik" className="mx-auto max-w-2xl px-4 py-12">
+        <main id="icerik" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
           {children}
         </main>
         <SiteFooter lastPeriod={lastPeriod} attribution={attribution} />
