@@ -6,7 +6,7 @@ const navLink =
 
 export function SiteHeader() {
   return (
-    <header className="bg-[var(--color-shell)] text-[var(--color-shell-ink)]">
+    <header className="border-b border-[var(--color-line)] bg-[var(--color-shell)] text-[var(--color-shell-ink)]">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 px-4 py-2 sm:px-6 lg:px-8">
         <Link href="/" className="inline-flex min-h-11 items-center gap-2.5 font-semibold">
           <svg aria-hidden="true" viewBox="0 0 20 24" className="h-5 w-auto">

@@ -15,26 +15,27 @@ Sonuç paneli bu fişin "toplamı" gibi durur: büyük kişisel oran (vurgu reng
 
 ## Düzen
 
-- Kabuk: tam genişlik koyu üst bant (`--color-shell`), içerik `max-w-6xl`.
+- Kabuk: tam genişlik beyaz üst bant (`--color-shell`, alt kenar çizgisi), içerik `max-w-6xl`.
 - Ana sayfa (çalışma masası): `lg` ve üstünde iki sütun; solda fiş (form), sağda `sticky` sonuç paneli (dönem seçici, sonuç, katkılar, paylaşım). Panel ekrandan uzunsa kendi içinde kayar. Altta tam genişlik zaman serisi ve iki sütunlu hesap araçları.
-- Mobil: tek sütun; sonuç ekranda değilken altta koyu özet çubuğu ("Sonuca git").
+- Mobil: tek sütun; sonuç ekranda değilken altta beyaz özet çubuğu ("Sonuca git").
 - Okuma sayfaları: metin en fazla `70ch`; yıl sayfasında iki tablo `lg`'de yan yana.
 
 ## Renk
 
-Strateji: kısıtlı (tonlu nötrler + tek vurgu), kabuk koyu bantla taşınır. Grafik renkleri dataviz doğrulayıcısından geçmiştir.
+Strateji: kısıtlı (tonlu nötrler + tek vurgu). Grafik renkleri dataviz doğrulayıcısından geçmiştir.
 
-| Token                                   | Açık                  | Koyu                  | Görev                           |
-| --------------------------------------- | --------------------- | --------------------- | ------------------------------- |
-| `--color-surface`                       | `#eceeef`             | `#0e1013`             | Zemin (tezgâh), alan içleri     |
-| `--color-card`                          | `#ffffff`             | `#181b20`             | Kâğıt: fiş ve kartlar           |
-| `--color-shell`                         | `#15171a`             | `#07080a`             | Üst bant, mobil özet, CTA bandı |
-| `--color-ink` / `--color-muted`         | `#15171a` / `#59616b` | `#eceef1` / `#a3acb8` | Metin                           |
-| `--color-line` / `--color-rule`         | `#d6dade` / `#a7aeb6` | `#2c313a` / `#4a525d` | Satır çizgisi / fiş ayracı      |
-| `--color-accent`                        | `#c2410c`             | `#fb923c`             | Kişisel oran, birincil eylem    |
-| `--color-shell-accent`                  | `#fb923c`             | `#fb923c`             | Koyu bant üstündeki vurgu       |
-| `--color-official`                      | `#2f5d8a`             | `#7fb2e5`             | Resmi oran metni                |
-| `--color-series-personal` / `-official` | `#c2410c` / `#2a78d6` | `#d95926` / `#3987e5` | Grafik serileri                 |
+Tek tema: açık. Sistem koyu moddayken de site açık görünür (`color-scheme: light`).
+
+| Token                                   | Değer                 | Görev                                                   |
+| --------------------------------------- | --------------------- | ------------------------------------------------------- |
+| `--color-surface`                       | `#eceeef`             | Zemin (tezgâh), alan içleri                             |
+| `--color-card`                          | `#ffffff`             | Kâğıt: fiş ve kartlar                                   |
+| `--color-shell`                         | `#ffffff`             | Üst bant, mobil özet, CTA bandı (ince kenar çizgisiyle) |
+| `--color-ink` / `--color-muted`         | `#15171a` / `#59616b` | Metin                                                   |
+| `--color-line` / `--color-rule`         | `#d6dade` / `#a7aeb6` | Satır çizgisi / fiş ayracı                              |
+| `--color-accent`                        | `#c2410c`             | Kişisel oran, birincil eylem                            |
+| `--color-official`                      | `#2f5d8a`             | Resmi oran metni                                        |
+| `--color-series-personal` / `-official` | `#c2410c` / `#2a78d6` | Grafik serileri                                         |
 
 ## Tip
 

@@ -5,16 +5,16 @@
  * imza (fiş satırları: noktalı bağlar, kesik ayraçlar, kalın TOPLAM, yırtık kenar)
  * getirir; kontroller standart web bileşenleridir.
  *
- * Açık tema varsayılan, koyu tema sistem tercihine göre.
+ * Tek tema: açık. Sistem koyu moddayken de site açık görünür.
  */
 @theme {
   /* Zemin: tezgâh grisi. Kâğıt: fiş ve kartlar. */
   --color-surface: #eceeef;
   --color-card: #ffffff;
-  --color-shell: #15171a;
-  --color-shell-ink: #f4f5f6;
-  --color-shell-muted: #aab1ba;
-  --color-shell-accent: #fb923c;
+  --color-shell: #ffffff;
+  --color-shell-ink: #15171a;
+  --color-shell-muted: #59616b;
+  --color-shell-accent: #c2410c;
   --color-line: #d6dade;
   --color-rule: #a7aeb6;
   --color-ink: #15171a;
@@ -33,28 +33,8 @@
     ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-surface: #0e1013;
-    --color-card: #181b20;
-    --color-shell: #07080a;
-    --color-shell-ink: #eceef1;
-    --color-shell-muted: #9aa3ae;
-    --color-line: #2c313a;
-    --color-rule: #4a525d;
-    --color-ink: #eceef1;
-    --color-muted: #a3acb8;
-    --color-accent: #fb923c;
-    --color-accent-ink: #0e1013;
-    --color-official: #7fb2e5;
-    --color-danger: #f97066;
-    --color-series-personal: #d95926;
-    --color-series-official: #3987e5;
-    --color-grid: #262a31;
-  }
-}
-
 html {
+  color-scheme: light;
   background: var(--color-surface);
   color: var(--color-ink);
   caret-color: var(--color-accent);

@@ -26,7 +26,7 @@ Kullanıcı aylık harcamasını kalem kalem girer, uygulama resmi fiyat endeksl
 - [ ] Reel maaş hesabı (maaş + son zam tarihi)
 - [ ] Link ile paylaşım (sonuç URL'de) + dinamik önizleme görseli + indirilebilir story kartı
 - [ ] Metodoloji sayfası (nasıl hesaplıyoruz, veri kaynağı, sınırlamalar)
-- [ ] Açık/koyu tema, tamamen Türkçe
+- [ ] Tek açık tema (kullanıcı kararı, 2026-10-19; sistem koyu moddayken de açık), tamamen Türkçe
 
 ### 1.2 MVP'de olmayanlar (bilinçli olarak)
 
@@ -317,11 +317,11 @@ Grafikler hazır bir kütüphaneyle değil, React + SVG ile elle yazılır; hesa
 
 - `<ChartFrame>`: `ResizeObserver` ile genişliği ölçer, `viewBox` ile ölçeklenir; SSR'da sabit genişlikle render edilip hidrasyonda ayarlanır (layout shift yok, CLS = 0).
 - `<Axis>`, `<Gridlines>`, `<Line>`, `<Bars>`, `<Tooltip>`: küçük, birleştirilebilir parçalar.
-- Renkler CSS değişkenlerinden gelir; dark mode'da otomatik değişir. "Sen" ve "resmi" serileri renk + çizgi stili (düz / kesikli) + doğrudan etiketle ayrılır; renk tek ayırt edici değildir.
+- Renkler CSS değişkenlerinden gelir (site tek, açık temalıdır). "Sen" ve "resmi" serileri renk + çizgi stili (düz / kesikli) + doğrudan etiketle ayrılır; renk tek ayırt edici değildir.
 
 **Uygulama (web Adım 7):** `components/charts/` altında `ChartFrame` (başlık, veriden üretilen özet, "Tablo olarak göster"), `TimeSeriesChart` ve `ContributionBars`; hesap `lib/series.ts`'te. Ölçülen maliyet: grafikler `d3-scale`/`d3-shape`/`d3-array` dahil uygulama chunk'ına **+11,9 KB gzip** ekler (bütçe 15 KB); uygulama chunk'ı toplam 20,9 KB (island bütçesi 35 KB).
 
-- **Renkler doğrulayıcıyla seçildi**, göz kararı değil: "Sen" açık modda `#c2410c` (site vurgusu), koyu modda `#d95926`; "Resmi" `#2a78d6` / `#3987e5`. Paletin varsayılan turuncusu `#eb6834` kart yüzeyinde 2,98:1 verdiği için (3:1 altı) reddedildi. Seçilen çift iki modda da kontrast ≥ 3:1, CVD ΔE ≥ 26.
+- **Renkler doğrulayıcıyla seçildi**, göz kararı değil: "Sen" `#c2410c` (site vurgusu), "Resmi" `#2a78d6`. (Koyu tema 2026-10-19'da kaldırıldı; koyu tonlar `#d95926` / `#3987e5` artık kullanılmıyor.) Paletin varsayılan turuncusu `#eb6834` kart yüzeyinde 2,98:1 verdiği için (3:1 altı) reddedildi. Seçilen çift iki modda da kontrast ≥ 3:1, CVD ΔE ≥ 26.
 - **Kimlik asla yalnızca renkte değil:** lejant (çizgi anahtarı), resmi seri kesikli, uç etiketleri. Seriler sonda 16 px'ten yakınsa uç etiketleri üst üste yığılmaz; lejant ve tooltip devralır.
 - **Katkı çubukları:** grup adı çubuğun üstünde kendi satırında (uzun adlar hiçbir genişlikte çubuğa binmez), çubuk 16 px, yalnızca veri ucu 4 px yuvarlak, değer ucunda; negatif katkılar sıfır çizgisinin soluna.
 - **Klavye:** zaman serisi `role="slider"`dır; ok tuşları ay, PageUp/PageDown yıl, Home/End uç değiştirir; seçili ay ve değerler `aria-valuetext` ile okunur.

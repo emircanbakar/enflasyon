@@ -123,7 +123,7 @@ export function Calculator({ data }: CalculatorProps) {
       {outcome.status === "ok" && !resultVisible && (
         <a
           href="#sonuc-paneli"
-          className="fixed inset-x-3 bottom-3 z-20 flex min-h-14 items-center justify-between gap-3 rounded-xl bg-[var(--color-shell)] px-4 text-[var(--color-shell-ink)] shadow-[0_8px_24px_-8px_rgb(0_0_0/0.45)] lg:hidden"
+          className="fixed inset-x-3 bottom-3 z-20 flex min-h-14 items-center justify-between gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-shell)] px-4 text-[var(--color-shell-ink)] shadow-[0_8px_24px_-8px_rgb(0_0_0/0.25)] lg:hidden"
         >
           <span className="flex min-w-0 items-baseline gap-2">
             <span className="text-sm text-[var(--color-shell-muted)]">
