@@ -8,6 +8,6 @@
  */
 export const publicEnv = {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
-  analyticsDomain: process.env.NEXT_PUBLIC_ANALYTICS_DOMAIN,
+  umamiWebsiteId: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
   sentryDsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 } as const;

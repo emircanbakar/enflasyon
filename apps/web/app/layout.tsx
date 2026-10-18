@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@/components/site/Analytics";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { loadCalculatorData } from "@/lib/data";
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
           {children}
         </main>
         <SiteFooter lastPeriod={lastPeriod} attribution={attribution} />
+        <Analytics />
       </body>
     </html>
   );

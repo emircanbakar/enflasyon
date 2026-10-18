@@ -10,13 +10,17 @@ describe("parsePublicEnv", () => {
     expect(
       parsePublicEnv({
         NEXT_PUBLIC_SITE_URL: "https://ornek.com",
-        NEXT_PUBLIC_ANALYTICS_DOMAIN: "ornek.com",
+        NEXT_PUBLIC_UMAMI_WEBSITE_ID: "5f0b7c1e-3a2d-4c5b-9e8f-1a2b3c4d5e6f",
         NEXT_PUBLIC_SENTRY_DSN: "",
       }),
     ).toEqual({
       NEXT_PUBLIC_SITE_URL: "https://ornek.com",
-      NEXT_PUBLIC_ANALYTICS_DOMAIN: "ornek.com",
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: "5f0b7c1e-3a2d-4c5b-9e8f-1a2b3c4d5e6f",
     });
+  });
+
+  it("Umami kimliği UUID değilse reddeder", () => {
+    expect(() => parsePublicEnv({ NEXT_PUBLIC_UMAMI_WEBSITE_ID: "ornek.com" })).toThrow();
   });
 
   it("ilgisiz değişkenleri sonuca taşımaz", () => {

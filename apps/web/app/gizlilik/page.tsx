@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Gizlilik açıklaması (docs/web.md, Bölüm 10.4). Analitik veya hata takibi
- * eklendiğinde (web Adım 12) bu sayfa aynı commit'te güncellenir.
+ * Gizlilik açıklaması (docs/web.md, Bölüm 10.4). Toplanan veriyi değiştiren her
+ * değişiklik (lib/analytics.ts, lib/monitoring.ts) bu sayfayı aynı commit'te günceller.
  */
 export default function PrivacyPage() {
   return (
@@ -54,13 +54,26 @@ export default function PrivacyPage() {
         </li>
       </ul>
 
-      <h2>Ölçüm ve üçüncü taraflar</h2>
-      <p>
-        Şu an analitik ya da hata takibi aracı kullanılmıyor. İleride eklenirse yalnızca çerezsiz,
-        kişisel veri toplamayan araçlar (sayfa görüntüleme, sayfa hızı ölçümleri) kullanılacak ve bu
-        sayfa aynı anda güncellenecek. Sayfada reklam, sosyal medya eklentisi veya üçüncü taraf
-        script yoktur.
-      </p>
+      <h2>Ölçüm</h2>
+      <ul>
+        <li>
+          <strong>Ziyaret istatistikleri (Umami):</strong> çerez ve cihaz kimliği kullanmayan bir
+          araçla sayfa görüntülemeleri, sayfa hızı ölçümleri (ör. sayfanın ne kadar sürede
+          yüklendiği) ve şu olaylar sayılır: ilk sonucun görülmesi (yalnızca seçilen dönem tipi ve
+          TL ya da yüzde modu), linkin kopyalanması, paylaşım ve story kartı. Gönderilen sayfa
+          adreslerinden <code>?</code> ve <code>#</code> sonrası silinir; yani harcama dağılımın ve
+          tutarların istatistiklere hiç girmez. Umami IP adresini saklamaz; yalnızca ülke düzeyinde
+          konum ve her gün değişen anonim bir oturum özeti için anlık olarak kullanır. Tarayıcında
+          &quot;Do Not Track&quot; açıksa hiç ölçüm yapılmaz.
+        </li>
+        <li>
+          <strong>Hata kayıtları (Sentry):</strong> yalnızca sayfada bir hata oluştuğunda hata
+          mesajı, kodun hangi satırda bozulduğu ve tarayıcı türü gönderilir. Adreslerin{" "}
+          <code>?</code> ve <code>#</code> sonrası, çerezler ve önceki sayfa bilgisi silinir; IP
+          adresi saklanmaz. Hata olmayan ziyaretlerde bu araç hiç yüklenmez.
+        </li>
+      </ul>
+      <p>Sayfada reklam, sosyal medya eklentisi veya izleme amaçlı başka bir script yoktur.</p>
 
       <h2>İletişim</h2>
       <p>

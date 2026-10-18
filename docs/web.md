@@ -481,9 +481,9 @@ Uygulamanın çalışma anında **hiçbir secret'ı yoktur**. Secret'lar (EVDS a
 | `EVDS_API_KEY`                 | GitHub Environment `data` secret; yerelde `.env.local` | Evet     | Sadece `scripts/data/` okur                                                          |
 | `DATA_APP_PRIVATE_KEY`         | GitHub Environment `data` secret                       | Evet     | Veri PR'ını açan GitHub App; `DATA_APP_CLIENT_ID` repo variable (gizli değil)        |
 | `NEXT_PUBLIC_SITE_URL`         | Vercel env                                             | Hayır    | Canonical ve OG için                                                                 |
-| `NEXT_PUBLIC_ANALYTICS_DOMAIN` | Vercel env                                             | Hayır    | Plausible/Umami site kimliği                                                         |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Vercel env                                             | Hayır    | Umami Cloud site kimliği (UUID); yoksa analitik yüklenmez                            |
 | `NEXT_PUBLIC_SENTRY_DSN`       | Vercel env                                             | Hayır    | DSN public olacak şekilde tasarlanmıştır; Sentry'de "allowed domains" ile sınırlanır |
-| `SENTRY_AUTH_TOKEN`            | Vercel env (sadece build)                              | Evet     | Source map yükleme; istemezsen hiç eklenmez                                          |
+| `SENTRY_AUTH_TOKEN`            | Vercel env (sadece build)                              | Evet     | Source map yükleme; şu an kullanılmıyor (web Adım 12 notu)                           |
 
 **Kurallar:**
 
@@ -556,6 +556,22 @@ Core dokümanının 9. bölümündeki kurallar web tarafı için de birebir geç
 - **Analitik:** Plausible veya Umami; sayfa görüntüleme, "hesap tamamlandı", "paylaşım kartı indirildi", "link kopyalandı" olayları ve web vitals. Kullanıcı sayısı rakamı portföyde buradan gelir.
 - **Hata takibi:** Sentry, PII kapalı, örnekleme %100 (düşük trafik), haftalık özet e-postası.
 - **Veri tazeliği:** `meta.json`'daki son veri ayı 40 günden eskiyse altbilgide uyarı görünür; ayrıca veri workflow'u başarısız olursa GitHub bildirim gönderir.
+
+**Uygulama (web Adım 12):**
+
+- **Analitik: Umami Cloud** (ücretsiz plan, çerezsiz). Script ve olay isteği `next.config.ts` rewrite'larıyla kendi adresimizden geçer (`/stats/script.js`, `/stats/api/send` → `cloud.umami.is`); CSP'ye dış origin eklenmez, reklam engelleyicilere de takılmaz. `data-exclude-search`/`data-exclude-hash` ile adreslerden sepet ve tutarlar silinir; `data-do-not-track` açık; `data-domains` yalnızca `NEXT_PUBLIC_SITE_URL` alan adını sayar (preview ve yerel build sayılmaz). Olaylar `lib/analytics.ts`'te sabit tiplidir: `hesap-tamamlandi` (sayfa başına bir kez; yalnızca dönem tipi ve mod), `link-kopyalandi`, `paylasildi`, `story-indirildi`, `web-vitals` (LCP, INP, CLS, FCP, TTFB; yıl sayfaları tek grupta). Script yüklenmeden gelen olaylar kuyrukta bekler.
+- **Hata takibi: Sentry, tembel yükleme.** `@sentry/browser` ilk yüke girmez: `instrumentation-client.ts` global hata dinleyicilerini kurar, `app/error.tsx` ve `app/global-error.tsx` React hatalarını yakalar; SDK (28 KB gzip) yalnızca ilk hatada dinamik import edilir. `sendDefaultPii: false`, breadcrumb yok, adreslerden query/fragment ve Referer silinir, sayfa başına en fazla 10 hata. Source map yüklemesi (ve `SENTRY_AUTH_TOKEN`) şimdilik yok: yığın izleri minify edilmiş görünür; ihtiyaç olursa eklenir. CSP `connect-src`'ye yalnızca DSN'deki ingest origin'i eklenir.
+- **Bütçe etkisi:** web vitals ve script yükleyici her sayfaya girdiği için taban 135 → 141,7 KB; uygulama 22,9 KB, toplam 164,6 KB (bütçe 185 KB içinde).
+- **Veri tazeliği uyarısı** (altbilgide 40 gün) eklenmedi: sayfalar statik olduğu için build zamanında hesaplanan uyarı anlamsız, tarayıcıda hesaplamak her sayfaya JS ekler. Tazelik veri workflow'unun başarısızlık bildirimiyle izlenir.
+- **Vercel yapılandırması** `apps/web/vercel.json`'dadır: install `pnpm install --frozen-lockfile`, build önce `enflasyon-core`'u derler, `ignoreCommand` yalnızca `apps/web`, `packages/core` veya kök paket dosyaları değiştiğinde deploy eder.
+- **Alan adı:** ilk yayın `*.vercel.app` adresiyle. Alan adı alındığında yalnızca Vercel'de domain eklenir ve `NEXT_PUBLIC_SITE_URL` güncellenir; kod değişmez.
+
+**Kurulum (elle, bir kez):**
+
+1. **Vercel:** "Add New Project" → GitHub'dan `emircanbakar/enflasyon` → **Root Directory** `apps/web` (framework Next.js otomatik). Project Settings → General → **Node.js 24.x**. Environment Variables: `ENABLE_EXPERIMENTAL_COREPACK=1` (pnpm 12'yi `packageManager` alanından kullanması için). Git → fork PR'ları için preview kapalı.
+2. **Umami Cloud:** hesap → "Add website" (alan adı: Vercel'in verdiği `*.vercel.app`) → Website ID'yi Vercel'e `NEXT_PUBLIC_UMAMI_WEBSITE_ID` olarak ekle.
+3. **Sentry:** "Browser JavaScript" projesi → DSN'i Vercel'e `NEXT_PUBLIC_SENTRY_DSN` olarak ekle. Project Settings → Security & Privacy: "Prevent Storing of IP Addresses" açık, "Allowed Domains" yalnızca site adresi. Haftalık özet e-postası açık.
+4. Vercel'de `NEXT_PUBLIC_SITE_URL`'i production adresine (`https://<proje>.vercel.app`) ayarla ve yeniden deploy et. Değişkenler build sırasında koda gömüldüğü için her değişiklikten sonra yeniden deploy gerekir.
 
 ### 12.3 Yol haritası
 

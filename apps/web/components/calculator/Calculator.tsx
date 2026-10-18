@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { availablePeriods, toIndexSet } from "enflasyon-core";
+import { track } from "@/lib/analytics";
 import { availableTargets, calculate } from "@/lib/calc";
 import type { CalculatorData } from "@/lib/calc";
 import { officialProfile } from "@/lib/profiles";
@@ -42,6 +43,15 @@ export function Calculator({ data }: CalculatorProps) {
     () => calculate({ ...state, at, from }, data, indices),
     [state, at, from, data, indices],
   );
+
+  // Sayfa başına bir kez: kullanıcı ilk sonucunu gördü (yalnızca dönem tipi ve giriş modu gider).
+  const reported = useRef(false);
+  const isOk = outcome.status === "ok";
+  useEffect(() => {
+    if (!isOk || reported.current) return;
+    reported.current = true;
+    track({ name: "hesap-tamamlandi", data: { donem: state.period, mod: state.mode } });
+  }, [isOk, state.period, state.mode]);
 
   // Detay araçlarının başlangıç ayı seçenekleri: son veri ayı hariç, yeniden eskiye.
   const toolMonths = useMemo(() => starts.slice(0, -1).reverse(), [starts]);

@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import type { Period } from "enflasyon-core";
 import type { BasketState } from "@/lib/basket-url";
+import { track } from "@/lib/analytics";
 import { ogImagePath, shareUrl } from "@/lib/share";
 
 interface ShareActionsProps {
@@ -31,6 +32,7 @@ export function ShareActions({ state, lastPeriod }: ShareActionsProps) {
     try {
       await navigator.clipboard.writeText(url());
       setStatus("Link kopyalandı.");
+      track({ name: "link-kopyalandi" });
     } catch {
       setStatus("Link kopyalanamadı; adres çubuğundan kopyalayabilirsin.");
     }
@@ -43,6 +45,7 @@ export function ShareActions({ state, lastPeriod }: ShareActionsProps) {
     }
     try {
       await navigator.share({ title: "Benim enflasyonum", url: url() });
+      track({ name: "paylasildi" });
     } catch {
       // Kullanıcı paylaşım penceresini kapattı; bir şey yapmaya gerek yok.
     }
@@ -60,6 +63,7 @@ export function ShareActions({ state, lastPeriod }: ShareActionsProps) {
       if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: "Benim enflasyonum" });
         setStatus("");
+        track({ name: "story-indirildi" });
       } else {
         const href = URL.createObjectURL(file);
         const anchor = document.createElement("a");
@@ -68,6 +72,7 @@ export function ShareActions({ state, lastPeriod }: ShareActionsProps) {
         anchor.click();
         URL.revokeObjectURL(href);
         setStatus("Story kartı indirildi.");
+        track({ name: "story-indirildi" });
       }
     } catch {
       setStatus("Story kartı hazırlanamadı. Tekrar dene.");

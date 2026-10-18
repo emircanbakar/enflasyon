@@ -26,7 +26,8 @@ export const serverEnvSchema = z.object({
 /** Tarayıcıya giden, public değerler. */
 export const publicEnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: optionalUrl,
-  NEXT_PUBLIC_ANALYTICS_DOMAIN: optionalString,
+  /** Umami Cloud site kimliği (UUID); yoksa analitik script'i hiç yüklenmez. */
+  NEXT_PUBLIC_UMAMI_WEBSITE_ID: optionalString.pipe(z.uuid().optional()),
   NEXT_PUBLIC_SENTRY_DSN: optionalUrl,
 });
 
