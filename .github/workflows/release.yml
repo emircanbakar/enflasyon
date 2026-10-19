@@ -40,7 +40,7 @@ jobs:
           pnpm --filter enflasyon-core lint:package
 
       - name: Sürüm PR oluştur veya NPM'e yayınla
-        uses: changesets/action@c804f33177695a43924f59055416040854d9c792 # v1.5.0
+        uses: changesets/action@v1
         with:
           publish: pnpm changeset publish
           title: "chore: Sürüm güncellemesi"
