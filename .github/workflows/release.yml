@@ -39,13 +39,7 @@ jobs:
           pnpm --filter enflasyon-core build
           pnpm --filter enflasyon-core lint:package
 
-      - name: Sürüm PR oluştur veya NPM'e yayınla
-        uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish
-          title: "chore: Sürüm güncellemesi"
-          commit: "chore: Sürüm güncellemesi [skip ci]"
+      - name: NPM'e yayınla
+        run: pnpm --filter enflasyon-core publish --access public --no-git-checks
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
