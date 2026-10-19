@@ -1,9 +1,16 @@
-import { addMonths, availablePeriods, itemChange, personalInflation } from "enflasyon-core";
+import {
+  addMonths,
+  availablePeriods,
+  isEnflasyonError,
+  itemChange,
+  personalInflation,
+} from "enflasyon-core";
 import type { IndexSet, Period } from "enflasyon-core";
 import type { BasketState, PeriodKind } from "./basket-url";
 import { CATEGORIES } from "./categories";
 import type { CategoryKey } from "./categories";
 import { userMessage } from "./errors";
+import { reportError } from "./monitoring";
 
 /**
  * Hesaplayıcının durumdan sonuca giden saf hesap katmanı (docs/web.md, Bölüm 5.3–5.4).
@@ -118,6 +125,9 @@ export function calculate(
       sharesMeaningful,
     };
   } catch (error) {
+    if (!isEnflasyonError(error) || error.code === "SHARES_NOT_ONE") {
+      reportError(error);
+    }
     return { status: "error", message: userMessage(error) };
   }
 }

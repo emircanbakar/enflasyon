@@ -27,7 +27,7 @@ interface CalculatorProps {
  * yeniden yapılır (< 1 ms).
  */
 export function Calculator({ data }: CalculatorProps) {
-  const { state, dispatch, urlWasInvalid } = useBasket();
+  const { state, dispatch, urlWasInvalid, ready } = useBasket();
   const indices = useMemo(() => toIndexSet(data.series), [data.series]);
   const profile = useMemo(
     () => officialProfile(data.officialWeights, data.officialWeightsYear),
@@ -44,6 +44,13 @@ export function Calculator({ data }: CalculatorProps) {
     () => calculate({ ...state, at, from }, data, indices),
     [state, at, from, data, indices],
   );
+
+  // URL'den veya hazır profilden geldiyse ve sepet değerleri henüz boşsa profili uygula.
+  useEffect(() => {
+    if (ready && state.profile === profile.id && Object.keys(state.values).length === 0) {
+      dispatch({ type: "applyProfile", profile });
+    }
+  }, [ready, state.profile, state.values, profile, dispatch]);
 
   // Sayfa başına bir kez: kullanıcı ilk sonucunu gördü (yalnızca dönem tipi ve giriş modu gider).
   const reported = useRef(false);

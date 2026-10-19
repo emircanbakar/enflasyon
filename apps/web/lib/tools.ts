@@ -1,8 +1,15 @@
-import { adjustAmount, itemChange, personalInflation, realWageChange } from "enflasyon-core";
+import {
+  adjustAmount,
+  isEnflasyonError,
+  itemChange,
+  personalInflation,
+  realWageChange,
+} from "enflasyon-core";
 import type { IndexSet, Period } from "enflasyon-core";
 import type { BasketValues } from "./basket-state";
 import type { CalculatorData } from "./calc";
 import { userMessage } from "./errors";
+import { reportError } from "./monitoring";
 
 /**
  * Detay araçları (docs/web.md, Bölüm 2.2 adım 4): "o zamanki tutar bugün kaç TL?"
@@ -62,6 +69,9 @@ export function pastAmount(amount: number | null, input: ToolInput): ToolOutcome
         personal === null ? null : { rate: personal, today: adjustAmount(amount, personal) },
     };
   } catch (error) {
+    if (!isEnflasyonError(error) || error.code === "SHARES_NOT_ONE") {
+      reportError(error);
+    }
     return { status: "error", message: userMessage(error) };
   }
 }
@@ -103,6 +113,9 @@ export function wageCheck(
         personalWage === null || personal === null ? null : { rate: personal, ...personalWage },
     };
   } catch (error) {
+    if (!isEnflasyonError(error) || error.code === "SHARES_NOT_ONE") {
+      reportError(error);
+    }
     return { status: "error", message: userMessage(error) };
   }
 }

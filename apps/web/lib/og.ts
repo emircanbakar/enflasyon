@@ -2,6 +2,7 @@ import type { IndexSet, Period } from "enflasyon-core";
 import { decodeBasket } from "./basket-url";
 import { calculate } from "./calc";
 import type { CalculatorData } from "./calc";
+import { OFFICIAL_PROFILE_ID, officialProfile } from "./profiles";
 
 /**
  * Önizleme görselinin (`/api/og`) içeriği (docs/web.md, Bölüm 7.1). Görsel
@@ -29,8 +30,12 @@ export function ogModel(search: string, data: CalculatorData, indices: IndexSet)
   const generic: OgModel = { kind: "generic", lastPeriod: data.lastPeriod };
   if (search.length > MAX_OG_QUERY) return generic;
   // Fragment hiçbir zaman sunucuya gelmez; görsel yalnızca yüzde dağılımından hesaplanır.
-  const state = decodeBasket(search, "");
+  let state = decodeBasket(search, "");
   if (state === null) return generic;
+  if (state.profile === OFFICIAL_PROFILE_ID && Object.keys(state.values).length === 0) {
+    const prof = officialProfile(data.officialWeights, data.officialWeightsYear);
+    state = { ...state, mode: "pct", values: prof.percentages };
+  }
   const outcome = calculate({ ...state, at: state.at ?? data.lastPeriod }, data, indices);
   if (outcome.status !== "ok") return generic;
   const first = outcome.contributions[0];

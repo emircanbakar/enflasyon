@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:local": "ALLOW_HTTP=1 next build",
+    "build": "next build --webpack",
+    "build:local": "ALLOW_HTTP=1 next build --webpack",
     "budget": "node scripts/bundle-budget.ts",
     "start": "next start",
     "typecheck": "tsc --noEmit",

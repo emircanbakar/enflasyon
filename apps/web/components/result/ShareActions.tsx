@@ -62,22 +62,42 @@ export function ShareActions({ state, lastPeriod }: ShareActionsProps) {
       const file = new File([await response.blob()], "benim-enflasyonum.png", {
         type: "image/png",
       });
-      if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Benim enflasyonum" });
-        setStatus("");
-        track({ name: "story-indirildi" });
-      } else {
+
+      const download = () => {
         const href = URL.createObjectURL(file);
         const anchor = document.createElement("a");
         anchor.href = href;
         anchor.download = file.name;
         anchor.click();
-        URL.revokeObjectURL(href);
+        setTimeout(() => {
+          URL.revokeObjectURL(href);
+        }, 100);
         setStatus("Story kartı indirildi.");
         track({ name: "story-indirildi" });
+      };
+
+      if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "Benim enflasyonum" });
+          setStatus("");
+          track({ name: "story-indirildi" });
+        } catch (shareErr) {
+          if (shareErr instanceof Error && shareErr.name === "AbortError") {
+            setStatus("");
+            return;
+          }
+          // Safari / iOS'ta fetch sonrası izin zaman aşımına uğrarsa indirmeye düş
+          download();
+        }
+      } else {
+        download();
       }
-    } catch {
-      setStatus("Story kartı hazırlanamadı. Tekrar dene.");
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        setStatus("");
+      } else {
+        setStatus("Story kartı hazırlanamadı. Tekrar dene.");
+      }
     } finally {
       setBusy(false);
     }

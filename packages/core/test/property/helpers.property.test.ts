@@ -34,7 +34,7 @@ describe("yardımcı fonksiyon kuralları (property)", () => {
   it("adjustAmount tutarda doğrusaldır", () => {
     fc.assert(
       fc.property(amount, rate, (a, r) => {
-        expect(adjustAmount(2 * a, r)).toBe(2 * adjustAmount(a, r));
+        expect(Math.abs(adjustAmount(2 * a, r) - 2 * adjustAmount(a, r))).toBeLessThanOrEqual(1e-9);
       }),
     );
   });

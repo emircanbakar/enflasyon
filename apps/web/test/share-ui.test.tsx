@@ -101,7 +101,9 @@ describe("ShareActions", () => {
     );
     expect(createObjectURL).toHaveBeenCalled();
     expect(click).toHaveBeenCalled();
-    expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
+    await waitFor(() => {
+      expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
+    });
   });
 
   it("dosya paylaşımı destekleniyorsa story kartını paylaşır", async () => {

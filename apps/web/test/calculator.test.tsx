@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen, within } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Calculator } from "../components/calculator/Calculator";
@@ -143,5 +143,20 @@ describe("Calculator", () => {
     await user.click(screen.getByRole("button", { name: "Sepeti temizle" }));
     expect(screen.getByLabelText<HTMLInputElement>("Gıda").value).toBe("");
     expect(within(resultRegion()).getByText(/Bir harcama kalemi gir/)).toBeTruthy();
+  });
+
+  it("profil parametresiyle açılınca sepeti o profille doldurur", async () => {
+    window.history.replaceState(null, "", "/?p=turkiye-ortalamasi");
+    render(<Calculator data={data} />);
+    await waitFor(() => {
+      expect(
+        screen
+          .getByRole("button", { name: /Türkiye ortalaması seçili/ })
+          .getAttribute("aria-pressed"),
+      ).toBe("true");
+    });
+    expect(screen.getByLabelText<HTMLInputElement>("Gıda").value).toBe("24,5");
+    expect(within(resultRegion()).getByText("%29,1")).toBeTruthy();
+    expect(within(resultRegion()).getByText("%29,7")).toBeTruthy(); // resmi yıllık
   });
 });

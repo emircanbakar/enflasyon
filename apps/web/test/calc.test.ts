@@ -1,5 +1,5 @@
 import { EnflasyonError, toIndexSet } from "enflasyon-core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_STATE } from "../lib/basket-url";
 import type { BasketState } from "../lib/basket-url";
 import { availableTargets, calculate, periodStart } from "../lib/calc";
@@ -111,6 +111,15 @@ describe("calculate", () => {
       status: "error",
       message: "Seçilen dönem için henüz veri yok; daha yakın bir ay seç.",
     });
+  });
+
+  it("beklenmeyen bir hata veya SHARES_NOT_ONE oluşursa Sentry'ye bildirir", async () => {
+    const monitoring = await import("../lib/monitoring");
+    const spy = vi.spyOn(monitoring, "reportError").mockImplementation(() => undefined);
+    const brokenIndices = { ...indices, genel: { "2026-09": 100 } }; // from ayı yok
+    const outcome = calculate(state({ values: { gida: 1 } }), data, brokenIndices);
+    expect(outcome.status).toBe("error");
+    spy.mockRestore();
   });
 });
 

@@ -68,6 +68,11 @@ describe("ogModel", () => {
     expect(model.kind === "result" && model.top).toBeNull();
   });
 
+  it("hazır profil tek başına geçerliyse resmi dağılımdan sonuç üretir", () => {
+    const model = ogModel("p=turkiye-ortalamasi", data, indices);
+    expect(model).toMatchObject({ kind: "result", from: "2025-09", to: "2026-09" });
+  });
+
   it.each([
     ["boş", ""],
     ["bilinmeyen sürüm", "v=9&w=gida.1000"],
