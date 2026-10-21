@@ -4,6 +4,8 @@ packages:
 
 # Yeni yayınlanan sürümleri 7 gün beklet (ele geçirilmiş paket saldırılarına karşı)
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - enflasyon-core
 
 # Kurulumda script çalıştırmasına izin verilen bağımlılıklar (varsayılan: hiçbiri)
 allowBuilds:

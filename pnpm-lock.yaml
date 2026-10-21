@@ -221,8 +221,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0
       enflasyon-core:
-        specifier: workspace:^
-        version: link:../../packages/core
+        specifier: ^1.0.0
+        version: 1.0.0
       next:
         specifier: ^16.4.0
         version: 16.4.0(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.64.0)(@types/node@24.19.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2406,6 +2406,10 @@ packages:
 
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
+
+  enflasyon-core@1.0.0:
+    resolution: {integrity: sha512-sPbZFFq6y4ZKk6hdFIeIvNL5hQa5h8Fs6l6NttvCjY72p8g4CIvprNnC32txfJUfrcFq+FAuCYP2mP8ZriSsYg==}
+    engines: {node: '>=22'}
 
   enhanced-resolve@5.26.0:
     resolution: {integrity: sha512-9vhedylFonb2YGogzUKX6+Ja72gOJbN1QHAqdrvqLwhdl/QWbKopzoUC9EbQNVsAns/bx/4uyqalrQAoy1IByw==}
@@ -6683,6 +6687,8 @@ snapshots:
   end-of-stream@1.4.5:
     dependencies:
       once: 1.4.0
+
+  enflasyon-core@1.0.0: {}
 
   enhanced-resolve@5.26.0:
     dependencies:
