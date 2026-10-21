@@ -22,6 +22,8 @@ import type { BasketState } from "./basket-url";
 
 interface HookState {
   readonly basket: BasketState;
+  /** URL'den okunan sepet; değişmedikçe URL'e geri yazılmaz. */
+  readonly loaded: BasketState | null;
   readonly ready: boolean;
   readonly urlWasInvalid: boolean;
 }
@@ -31,8 +33,10 @@ type HookAction =
 
 function hookReducer(state: HookState, action: HookAction): HookState {
   if (action.type === "loadFromUrl") {
+    const basket = action.decoded ?? state.basket;
     return {
-      basket: action.decoded ?? state.basket,
+      basket,
+      loaded: basket,
       ready: true,
       urlWasInvalid: action.decoded === null,
     };
@@ -40,7 +44,12 @@ function hookReducer(state: HookState, action: HookAction): HookState {
   return { ...state, basket: basketReducer(state.basket, action) };
 }
 
-const INITIAL: HookState = { basket: DEFAULT_STATE, ready: false, urlWasInvalid: false };
+const INITIAL: HookState = {
+  basket: DEFAULT_STATE,
+  loaded: null,
+  ready: false,
+  urlWasInvalid: false,
+};
 
 export function useBasket(): {
   readonly state: BasketState;
@@ -50,9 +59,8 @@ export function useBasket(): {
   /** URL'den okuma tamamlandı (ilk boyamadan sonra true). */
   readonly ready: boolean;
 } {
-  const [{ basket, ready, urlWasInvalid }, dispatch] = useReducer(hookReducer, INITIAL);
+  const [{ basket, loaded, ready, urlWasInvalid }, dispatch] = useReducer(hookReducer, INITIAL);
   const frame = useRef<number | null>(null);
-  const skipNextWrite = useRef(true);
 
   useEffect(() => {
     dispatch({
@@ -62,11 +70,9 @@ export function useBasket(): {
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
-    if (skipNextWrite.current) {
-      skipNextWrite.current = false;
-      return;
-    }
+    // Kullanıcı girişi URL okumasıyla aynı render'a düşebilir; bu yüzden "ilk
+    // çalışmayı atla" değil, "sepet URL'den okunduğu gibi mi" diye bakılır.
+    if (!ready || basket === loaded) return;
     if (frame.current !== null) cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => {
       frame.current = null;
@@ -74,7 +80,7 @@ export function useBasket(): {
       const url = `${window.location.pathname}?${search}${hash === "" ? "" : `#${hash}`}`;
       window.history.replaceState(window.history.state, "", url);
     });
-  }, [basket, ready]);
+  }, [basket, loaded, ready]);
 
   return { state: basket, dispatch, urlWasInvalid, ready };
 }
