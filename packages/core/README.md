@@ -75,7 +75,7 @@ for (const item of result.contributions) {
 ### Alım Gücü ve Maaş Araçları
 
 - `realWageChange({ wageFrom, wageTo, rate })`: Maaşın enflasyon karşısındaki reel değişim oranı ve alım gücünü korumak için gereken maaş.
-- `adjustAmount(amount, from, to, series)`: Geçmişteki bir tutarın bugünkü nominal karşılığı.
+- `adjustAmount(amount, rate)`: Geçmişteki bir tutarın, aradaki enflasyon oranıyla (ör. `personalInflation(...).rate`) bugünkü nominal karşılığı.
 
 ### Yardımcılar & Doğrulama
 
