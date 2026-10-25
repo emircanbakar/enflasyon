@@ -1,6 +1,6 @@
 {
   "name": "enflasyon-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Harcama sepetinden ki\u015fisel enflasyon hesaplayan, s\u0131f\u0131r ba\u011f\u0131ml\u0131l\u0131kl\u0131 TypeScript k\u00fct\u00fcphanesi",
   "keywords": [
     "enflasyon",
