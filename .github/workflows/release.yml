@@ -39,7 +39,24 @@ jobs:
           pnpm --filter enflasyon-core build
           pnpm --filter enflasyon-core lint:package
 
+      # Bu sürüm npm'de varsa yayın atlanır (her main push'unda çalışır).
+      - name: Sürüm npm'de var mı
+        id: check
+        working-directory: packages/core
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ -n "$(npm view "enflasyon-core@$VERSION" version 2>/dev/null)" ]; then
+            echo "enflasyon-core@$VERSION zaten yayında; atlanıyor."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Trusted publishing (OIDC): token yok. pnpm'in OIDC desteği doğrulanmadığı için
+      # npm CLI kullanılır; npm ≥ 11.5.1 gerekir (Node 24 ile gelir).
       - name: NPM'e yayınla
-        run: pnpm --filter enflasyon-core publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: steps.check.outputs.publish == 'true'
+        working-directory: packages/core
+        run: |
+          npm --version
+          npm publish --access public

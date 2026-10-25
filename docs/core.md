@@ -124,7 +124,7 @@ packages/core/
   },
   "files": ["dist"],
   "engines": { "node": ">=22" },
-  "publishConfig": { "access": "public", "provenance": true },
+  "publishConfig": { "access": "public" },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/emircanbakar/enflasyon.git",
@@ -456,7 +456,7 @@ npm, GitHub Actions ile OIDC tabanlı **trusted publishing**'i destekler; uzun �
 Kurulum:
 
 1. Paket ilk kez elle yayınlanır (`npm publish` ile `0.0.1`, isim rezervasyonu için) ya da npm'in "pending trusted publisher" akışı kullanılır.
-2. npmjs.com → paket ayarları → **Trusted Publisher** → GitHub Actions: kullanıcı `emircanbakar`, repo `enflasyon`, workflow `release.yml`, environment `npm`.
+2. npmjs.com → paket ayarları → **Trusted Publisher** → GitHub Actions: kullanıcı `emircanbakar`, repo `enflasyon`, workflow `release.yml`. Environment alanı workflow'daki `environment:` ile aynı olmalıdır; mevcut `release.yml` environment kullanmadığı için boş bırakılır.
    - **Repo görünürlüğü:** npm provenance sadece **public** repodan yapılan yayınlarda üretilir. Repo şu an private'tır; ilk npm yayınından (adım 11) önce public yapılır. Secret scanning push protection da public repolarda ücretsizdir, bu yüzden public'e geçiş en geç adım 11'de, tercihen ilk kod commit'inden önce yapılır.
 3. Aynı sayfadan **"Require two-factor authentication and disallow tokens"** seçilir. Artık paket sadece bu workflow'dan yayınlanabilir; çalınan bir token bile işe yaramaz.
 4. Workflow'da `permissions: id-token: write` ve npm CLI ≥ 11.5.1 gerekir.
@@ -584,7 +584,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app.outputs.token }}
 ```
 
-**Doğrulanacak (adım 11):** `pnpm changeset publish` pnpm üzerinden yayın yapar; kullanılan pnpm sürümünün npm OIDC trusted publishing'i desteklediği ilk yayından önce kontrol edilir. Desteklemiyorsa publish komutu `npm publish` çağıran bir script'e çevrilir.
+**Mevcut durum:** pnpm'in npm OIDC trusted publishing desteği doğrulanmadığı için `release.yml` yayını `packages/core` içinde `npm publish` ile yapar; sürüm npm'de zaten varsa adım atlanır. `publishConfig.provenance` kullanılmaz: repo private iken provenance üretilemez, public olunca trusted publishing provenance'ı kendiliğinden ekler.
 
 **`security.yml`** — haftalık ve PR'da: CodeQL analizi + OpenSSF Scorecard.
 
