@@ -584,7 +584,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app.outputs.token }}
 ```
 
-**Mevcut durum:** pnpm'in npm OIDC trusted publishing desteği doğrulanmadığı için `release.yml` yayını `packages/core` içinde `npm publish` ile yapar; sürüm npm'de zaten varsa adım atlanır. `publishConfig.provenance` kullanılmaz: repo private iken provenance üretilemez, public olunca trusted publishing provenance'ı kendiliğinden ekler.
+**Mevcut durum:** pnpm'in npm OIDC trusted publishing desteği doğrulanmadığı için `release.yml` yayını `packages/core` içinde `npm stage publish` ile yapar; sürüm npm'de zaten varsa adım atlanır. Trusted publisher yalnızca stage iznine sahiptir (npm varsayılanı ve önerisi): CI sürümü kuyruğa koyar, npmjs.com'da 2FA ile onaylanınca yayına çıkar. Onay bekleyen sürüm npm'de görünmediği için bu arada `main`'e yapılan push'lar onu yeniden stage etmeyi dener. `publishConfig.provenance` kullanılmaz: repo private iken provenance üretilemez, public olunca trusted publishing provenance'ı kendiliğinden ekler.
 
 **`security.yml`** — haftalık ve PR'da: CodeQL analizi + OpenSSF Scorecard.
 

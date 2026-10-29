@@ -52,11 +52,12 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Trusted publishing (OIDC): token yok. pnpm'in OIDC desteği doğrulanmadığı için
-      # npm CLI kullanılır; npm ≥ 11.5.1 gerekir (Node 24 ile gelir).
-      - name: NPM'e yayınla
+      # Trusted publishing (OIDC): token yok. Trusted publisher yalnızca stage iznine
+      # sahiptir; sürüm npmjs.com'da 2FA ile onaylanınca yayına çıkar. pnpm'in OIDC
+      # desteği doğrulanmadığı için npm CLI kullanılır; npm ≥ 11.15 gerekir (Node 24 ile gelir).
+      - name: NPM'e stage et
         if: steps.check.outputs.publish == 'true'
         working-directory: packages/core
         run: |
           npm --version
-          npm publish --access public
+          npm stage publish --access public
