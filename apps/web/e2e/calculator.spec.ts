@@ -75,7 +75,7 @@ test.describe("JavaScript kapalı", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Seninki değil");
     await expect(page.getByText(/Hesaplayıcı JavaScript gerektirir/)).toBeVisible();
-    await expect(page.getByText(/Son veri: Eylül 2026/).first()).toBeVisible();
+    await expect(page.getByText(/Son veri: \p{L}+ \d{4}/u).first()).toBeVisible();
     await page.goto("/enflasyon/2025");
     await expect(page.getByRole("table").first()).toBeVisible();
   });

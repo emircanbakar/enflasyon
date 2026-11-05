@@ -9,8 +9,8 @@ import { UNEXPECTED_ERROR, userMessage } from "../lib/errors";
 import { OFFICIAL_PROFILE_ID, officialProfile } from "../lib/profiles";
 import { readJson } from "./data/fixtures";
 
-const groups = readJson("data/cpi-groups.json") as { series: CalculatorData["series"] };
-const weights = readJson("data/cpi-weights.json") as Record<
+const groups = readJson("test/data/frozen/cpi-groups.json") as { series: CalculatorData["series"] };
+const weights = readJson("test/data/frozen/cpi-weights.json") as Record<
   string,
   CalculatorData["officialWeights"]
 >;

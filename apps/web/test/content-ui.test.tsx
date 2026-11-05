@@ -11,10 +11,10 @@ import { yearSummary } from "../lib/years";
 import type { WeightsByYear } from "../lib/years";
 import { readJson } from "./data/fixtures";
 
-const groups = readJson("data/cpi-groups.json") as {
+const groups = readJson("test/data/frozen/cpi-groups.json") as {
   series: Record<string, Record<string, number>>;
 };
-const weights = readJson("data/cpi-weights.json") as WeightsByYear;
+const weights = readJson("test/data/frozen/cpi-weights.json") as WeightsByYear;
 const indices = toIndexSet(groups.series);
 const years = ["2021", "2022", "2023", "2024", "2025", "2026"];
 
