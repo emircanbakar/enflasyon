@@ -3,10 +3,7 @@
   "compilerOptions": {
     "noEmit": false,
     "declaration": true,
-    "isolatedDeclarations": true,
-    // tsup 8 DTS build'i "baseUrl" ekliyor (TS 6'da deprecated).
-    // tsup 9'a geçince bu satır kaldırılacak.
-    "ignoreDeprecations": "6.0"
+    "isolatedDeclarations": true
   },
   "include": ["src"]
 }
