@@ -6,6 +6,12 @@ import type { Period } from "enflasyon-core";
 import { CATEGORY_KEYS } from "../../lib/categories";
 import type { CpiGroups, CpiWeights } from "../../scripts/data/schema";
 
+/**
+ * `frozen/` Eylül 2026'da dondurulmuş veri kopyasıdır: birim testleri somut rakamlara
+ * bakar, aylık veri güncellemesi bu testleri kırmamalıdır. Canlı `data/` yalnızca
+ * `pipeline.test.ts` ile doğrulanır.
+ */
+
 /** apps/web köküne göre JSON okur. jsdom ortamında da çalışsın diye URL nesnesi değil düz yol kullanılır. */
 const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const readJson = (relative: string): unknown =>

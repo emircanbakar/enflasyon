@@ -7,8 +7,8 @@ import { MAX_OG_QUERY, ogCacheControl, ogModel } from "../lib/og";
 import { ogImagePath, resolvedState, shareUrl } from "../lib/share";
 import { readJson } from "./data/fixtures";
 
-const groups = readJson("data/cpi-groups.json") as { series: CalculatorData["series"] };
-const weights = readJson("data/cpi-weights.json") as Record<
+const groups = readJson("test/data/frozen/cpi-groups.json") as { series: CalculatorData["series"] };
+const weights = readJson("test/data/frozen/cpi-weights.json") as Record<
   string,
   CalculatorData["officialWeights"]
 >;
