@@ -8,10 +8,10 @@
  * (Turbopack başlatıcısı ve RSC payload'u; ölçüm: statik ana sayfada 3 adet).
  * Nonce her istekte değiştiği için tüm sayfaları dinamik render'a zorlar; hash ise
  * payload sayfaya/isteğe özgü olduğu ve başlıklar build başında sabitlendiği için
- * uygulanamaz. Bu yüzden satır içi script'lere izin verilir ('unsafe-inline'), harici
- * chunk'lar ise SRI integrity hash'iyle korunur (`experimental.sri`). XSS'e karşı asıl
- * savunma girdi tarafındadır: kullanıcı girdisi HTML'e basılmaz, `dangerouslySetInnerHTML`
- * yasaktır (docs/web.md, Bölüm 10.2–10.3).
+ * uygulanamaz. Bu yüzden satır içi script'lere izin verilir ('unsafe-inline'); harici
+ * script'lerin yalnızca bir kısmı SRI ile korunur (`experimental.sri`, docs/web.md 10.2).
+ * XSS'e karşı asıl savunma girdi tarafındadır: kullanıcı girdisi HTML'e basılmaz,
+ * `dangerouslySetInnerHTML` yasaktır (docs/web.md, Bölüm 10.2–10.3).
  */
 
 export interface SecurityHeaderOptions {

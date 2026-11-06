@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
-    // Script'lere build sırasında integrity hash'i eklenir (hash tabanlı CSP, docs/web.md 10.2).
+    // Next'in başlangıç script'lerine integrity ekler; uygulama chunk'larını kapsamaz (docs/web.md 10.2).
     sri: { algorithm: "sha256" },
   },
   // Analitik birinci taraf adresten sunulur (docs/web.md, Bölüm 12.2): CSP'ye dış

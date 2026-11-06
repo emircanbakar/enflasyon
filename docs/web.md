@@ -510,18 +510,19 @@ Uygulamanın çalışma anında **hiçbir secret'ı yoktur**. Secret'lar (EVDS a
 
 `next.config.ts` → `headers()` ile tüm rotalara:
 
-- `Content-Security-Policy`: `default-src 'self'`; script için `'self' 'unsafe-inline'` + harici chunk'larda SRI (aşağıya bakın); `connect-src` sadece analitik ve Sentry alan adları; `img-src 'self' data:`; `frame-ancestors 'none'`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`
+- `Content-Security-Policy`: `default-src 'self'`; script için `'self' 'unsafe-inline'` + harici script'lerde kısmi SRI (aşağıya bakın); `connect-src` sadece analitik ve Sentry alan adları; `img-src 'self' data:`; `frame-ancestors 'none'`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`
 - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin` (paylaşım linklerindeki sepet bilgisinin dış sitelere referrer olarak gitmemesi için; dış linklerde ayrıca `rel="noreferrer"`)
 - `Permissions-Policy`: kamera, mikrofon, konum vb. hepsi kapalı
 - `Cross-Origin-Opener-Policy: same-origin`
 
-**CSP kararı (web Adım 2'de ölçülerek verildi): nonce yok, satır içi script'lere izin var, harici chunk'larda SRI.**
+**CSP kararı (web Adım 2'de ölçülerek verildi): nonce yok, satır içi script'lere izin var, harici script'lerde kısmi SRI.**
 
 - **Nonce kullanılmaz:** Next.js'te nonce her istekte değiştiği için tüm sayfaları dinamik render'a zorlar; SSG, CDN'den statik sunum ve TTFB < 200 ms bütçesi bozulur.
 - **Hash tabanlı `script-src 'self'` uygulanamadı:** Next.js 16 App Router, statik ana sayfaya bile 3 satır içi script gömer (Turbopack başlatıcısı ve RSC payload'u `self.__next_f.push(...)`). Bunların içeriği sayfaya ve build'e özgüdür; `next.config` başlıkları ise build başında sabitlenir, yani hash'ler başlığa yazılamaz. Dinamik `/sonuc` sayfasında payload her istekte değişeceği için hash hiç mümkün değildir. Next.js dokümanındaki `experimental.sri` yalnızca harici script'lere `integrity` ekler, satır içi olanları kapsamaz.
-- **Sonuç:** `script-src 'self' 'unsafe-inline'` (Next.js'in "nonce'suz" önerisi) ve `experimental.sri` ile harici chunk'larda integrity hash'i (ölçüm: 6 harici script'in 5'inde integrity var; Turbopack'in bir chunk'ına Next.js eklemiyor). Diğer tüm direktifler sıkıdır: `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`, `connect-src` yalnızca izinli origin'ler, üretimde `unsafe-eval` yok.
+- **Sonuç:** `script-src 'self' 'unsafe-inline'` (Next.js'in "nonce'suz" önerisi) ve `experimental.sri`. Diğer tüm direktifler sıkıdır: `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`, `connect-src` yalnızca izinli origin'ler, üretimde `unsafe-eval` yok.
+- **SRI kapsamı kısmidir (ölçüm: 2026-11-05, Next.js 16.4.3, webpack, statik sayfalar):** integrity yalnızca Next.js'in başlangıç script'lerinde (framework, `main-app`, webpack runtime, polyfills) bulunur. Ana sayfada 12 harici script'in 7'si, `/gizlilik`, `/enflasyon` ve `/nasil-hesapliyoruz` sayfalarında 9–10 script'in 4–5'i integrity'sizdir; bunlar uygulama kodudur (`layout`, `page`, `error`, ortak chunk'lar). Sonradan yüklenen chunk'larda da integrity yoktur, çünkü webpack runtime'ı kullanmaz. Hash'ler manifestte üretilir, ama React Flight bu etiketleri `integrity: void 0` ile yazar; Turbopack sürümünde de durum aynıdır, yani proje kodundan düzeltilemez. Script'ler HTML ile aynı origin'den sunulduğu için (`assetPrefix` yok) pratik etkisi düşüktür: origin'i ele geçiren biri integrity değerlerini de değiştirebilir. Upstream düzeltilene kadar paket yamalanmaz ve HTML sonradan işlenmez; `experimental.sri` maliyetsiz olduğu için açık kalır.
 - **XSS'e karşı asıl savunma girdi tarafında:** kullanıcı girdisi HTML'e basılmaz, URL parametreleri allowlist ile çözülür (Bölüm 5.2), `dangerouslySetInnerHTML` ESLint ile yasaktır (Bölüm 10.3).
 - **İleride:** Next.js satır içi script'ler için build zamanı hash desteği getirirse veya Trusted Types ile uyumluluk doğrulanırsa politika sıkılaştırılır; karar `apps/web/lib/security-headers.ts` başındaki notta ve testlerde kayıtlıdır.
 
