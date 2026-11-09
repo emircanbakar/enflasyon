@@ -40,7 +40,7 @@ Proje tek bir **pnpm workspace monorepo**'sudur: [`github.com/emircanbakar/enfla
 **Paketin bağımsızlığı nasıl korunur** (ayrı repo yerine kurallarla):
 
 - `packages/core` hiçbir workspace paketini import etmez; ESLint `no-restricted-imports` kuralı ve kendi `tsconfig`'i bunu zorlar.
-- Paketin kendi `package.json`, `README.md`, `LICENSE` ve `CHANGELOG.md` dosyaları vardır; npm sayfası monorepo'dan bağımsız okunur.
+- Paketin kendi `package.json`, `README.md` ve `LICENSE` dosyaları vardır; npm sayfası monorepo'dan bağımsız okunur.
 - Smoke test, paketi `pnpm pack` ile tarball'a çevirip workspace dışındaki geçici bir klasöre kurar ve oradan hem `import` hem `require` ile çalıştırır. Böylece "sadece monorepo içinde çalışıyor" türü hatalar yakalanır.
 - Changesets sadece `packages/core`'u sürümler; `apps/web` `ignore` listesindedir.
 
@@ -51,7 +51,7 @@ enflasyon/
 │   ├── test/
 │   ├── package.json · tsconfig.json · tsup.config.ts · vitest.config.ts
 │   ├── .size-limit.json
-│   ├── README.md · LICENSE · CHANGELOG.md
+│   ├── README.md · LICENSE
 ├── apps/web/                 # Next.js uygulaması (web dokümanı)
 ├── docs/                     # Bu iki teknik doküman
 ├── .changeset/               # config: apps/web ignore
@@ -96,17 +96,17 @@ packages/core/
 └── …                         # config dosyaları (yukarıda)
 ```
 
-| Araç                            | Görev               | Neden                                                                                                                                    |
-| ------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| pnpm                            | Paket yöneticisi    | Hızlı, katı bağımlılık çözümü, lockfile güvenilir                                                                                        |
-| TypeScript 6.0 (strict)         | Dil                 | TS 7 (native) `typescript-eslint` desteği gelene kadar beklenir; `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` açık |
-| tsup                            | Build               | ESM + CJS + `.d.ts` tek komutla                                                                                                          |
-| Vitest                          | Test                | Hızlı, TS desteği yerleşik, coverage dahili                                                                                              |
-| fast-check                      | Property-based test | Rastgele girdiyle matematiksel kuralları doğrular                                                                                        |
-| Changesets                      | Sürüm ve CHANGELOG  | Semver kararı PR'da verilir, yayın otomatik                                                                                              |
-| size-limit                      | Boyut bütçesi       | 5 KB sınırı aşılırsa CI kırılır                                                                                                          |
-| publint + @arethetypeswrong/cli | Paket doğrulama     | `exports` ve tip çözümlemesinin her ortamda doğru olduğunu kontrol eder                                                                  |
-| ESLint (flat config) + Prettier | Stil                | `typescript-eslint` strict-type-checked preset                                                                                           |
+| Araç                            | Görev                      | Neden                                                                                                                                    |
+| ------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| pnpm                            | Paket yöneticisi           | Hızlı, katı bağımlılık çözümü, lockfile güvenilir                                                                                        |
+| TypeScript 6.0 (strict)         | Dil                        | TS 7 (native) `typescript-eslint` desteği gelene kadar beklenir; `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` açık |
+| tsup                            | Build                      | ESM + CJS + `.d.ts` tek komutla                                                                                                          |
+| Vitest                          | Test                       | Hızlı, TS desteği yerleşik, coverage dahili                                                                                              |
+| fast-check                      | Property-based test        | Rastgele girdiyle matematiksel kuralları doğrular                                                                                        |
+| Changesets                      | Sürüm notu (kullanılmıyor) | Kurulu ama yayın akışına bağlı değil; sürüm elle artırılır (Bölüm 10)                                                                    |
+| size-limit                      | Boyut bütçesi              | 5 KB sınırı aşılırsa CI kırılır                                                                                                          |
+| publint + @arethetypeswrong/cli | Paket doğrulama            | `exports` ve tip çözümlemesinin her ortamda doğru olduğunu kontrol eder                                                                  |
+| ESLint (flat config) + Prettier | Stil                       | `typescript-eslint` strict-type-checked preset                                                                                           |
 
 **package.json kritik alanları:**
 
@@ -440,7 +440,7 @@ Golden veri `test/golden/fixtures/*.json` altında repoya konur. Bu veri kamuya 
 
 ## 8. Güvenlik (public repo)
 
-Bu paketin **çalışma anında hiçbir secret'a ihtiyacı yoktur**: ağ isteği atmaz, API anahtarı kullanmaz. npm'e yayın bile token olmadan, OIDC ile yapılır. Repodaki tek secret, Version Packages PR'ını açan GitHub App'in özel anahtarıdır (Bölüm 10) ve sadece `npm` environment'ında durur. Dolayısıyla repoda `.env` dosyası hiç olmaz; olması bir hata belirtisidir.
+Bu paketin **çalışma anında hiçbir secret'a ihtiyacı yoktur**: ağ isteği atmaz, API anahtarı kullanmaz. npm'e yayın bile token olmadan, OIDC ile yapılır. Yayın workflow'u da hiçbir secret kullanmaz (Bölüm 10); repodaki secret'lar yalnızca web uygulamasının veri güncellemesine aittir. Dolayısıyla repoda `.env` dosyası hiç olmaz; olması bir hata belirtisidir.
 
 ### 8.1 Secret sızıntısını engelleme
 
@@ -473,15 +473,15 @@ Kurulum:
 
 ### 8.4 Repo ayarları (GitHub)
 
-| Ayar                            | Değer                                                                                                                                                                                       |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Branch protection (`main`)      | PR zorunlu, CI geçmeli, force push kapalı, linear history                                                                                                                                   |
-| Signed commits                  | Zorunlu (SSH signing key ile; Bölüm 9.1). Bot commit'leri de imzalı olmalı (Bölüm 10.2)                                                                                                     |
-| Merge yöntemi                   | Rebase merge. **Doğrulanacak:** "Require signed commits" açıkken GitHub rebase merge'e izin veriyor mu; izin vermiyorsa merge commit veya squash'a geçilir (adım 3'te test edilir)          |
-| Actions → Fork PR'ları          | "Require approval for all outside collaborators"                                                                                                                                            |
-| Actions → Workflow permissions  | Varsayılan **read-only**; "Allow GitHub Actions to create and approve pull requests" **kapalı**. Version Packages PR'ı `GITHUB_TOKEN` ile değil, GitHub App token'ı ile açılır (Bölüm 10.2) |
-| Environment `npm`               | Sadece `main` branch'inden deploy, isteğe bağlı manuel onay                                                                                                                                 |
-| Private vulnerability reporting | Açık; `SECURITY.md` bu kanala yönlendirir                                                                                                                                                   |
+| Ayar                            | Değer                                                                                                                                                                                                                       |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Branch protection (`main`)      | PR zorunlu, CI geçmeli, force push kapalı, linear history                                                                                                                                                                   |
+| Signed commits                  | Zorunlu (SSH signing key ile; Bölüm 9.1). Bot commit'leri de imzalı olmalı (Bölüm 10.2)                                                                                                                                     |
+| Merge yöntemi                   | Rebase merge. **Doğrulanacak:** "Require signed commits" açıkken GitHub rebase merge'e izin veriyor mu; izin vermiyorsa merge commit veya squash'a geçilir (adım 3'te test edilir)                                          |
+| Actions → Fork PR'ları          | "Require approval for all outside collaborators"                                                                                                                                                                            |
+| Actions → Workflow permissions  | Varsayılan **read-only**; "Allow GitHub Actions to create and approve pull requests" **kapalı**. Otomatik PR'lar (aylık veri güncellemesi) `GITHUB_TOKEN` ile değil, GitHub App token'ı ile açılır (web dokümanı Bölüm 4.2) |
+| Environment `npm`               | Kullanılmıyor: `release.yml` environment'sız çalışır, yayın onayı npmjs.com'da verilir (Bölüm 10)                                                                                                                           |
+| Private vulnerability reporting | Açık; `SECURITY.md` bu kanala yönlendirir                                                                                                                                                                                   |
 
 ### 8.5 Kod düzeyinde
 
@@ -535,65 +535,29 @@ Monorepo'daki tüm workflow'lar `.github/workflows/` altında ortaktır: `ci.yml
 
 Branch protection, iki job'u da "required" yapmak yerine her zaman çalışan küçük bir `ci-ok` toplama job'unu zorunlu tutar; böylece path filtresiyle atlanan bir job PR'ı kilitlemez.
 
-**`release.yml`** — `main`'e merge sonrası:
+**`release.yml`** — her `main` push'unda:
 
-1. Changesets action çalışır. Bekleyen changeset varsa "Version Packages" PR'ı açar/günceller (sürüm + CHANGELOG).
-2. O PR merge edildiğinde aynı workflow `pnpm build` ve `npm publish` yapar. Kimlik doğrulama OIDC ile; `NODE_AUTH_TOKEN` yoktur.
-3. Git tag'i (`v1.2.0`) ve GitHub Release otomatik oluşur.
+1. `pnpm install --frozen-lockfile`, ardından `enflasyon-core` için `build` ve `lint:package` (publint + attw).
+2. `packages/core/package.json`'daki sürüm npm'de zaten varsa yayın adımı atlanır.
+3. Yoksa `packages/core` içinde `npm stage publish --access public` çalışır. Kimlik doğrulama trusted publishing (OIDC) ile yapılır; `NPM_TOKEN` ya da başka bir secret yoktur.
+4. Trusted publisher yalnızca stage iznine sahiptir (npm varsayılanı ve önerisi): sürüm npm'de kuyruğa girer, npmjs.com'da 2FA ile onaylanınca yayına çıkar.
 
-**Bot PR'ları neden `GITHUB_TOKEN` ile açılmaz:** `GITHUB_TOKEN` ile açılan veya güncellenen PR'larda başka workflow'lar (`ci.yml`) **tetiklenmez**. Branch protection "CI geçmeli" dediği için böyle bir PR hiç birleştirilemez. Ayrıca bu yol, repo ayarında "Actions PR oluşturabilir" iznini açmayı gerektirir. Çözüm: sadece bu repoya kurulu, minimum yetkili (contents + pull-requests: write) kişisel bir **GitHub App**. Workflow her çalışmada `actions/create-github-app-token` ile kısa ömürlü bir token üretir; bu token ile açılan PR'da CI normal çalışır.
+**Yeni sürüm nasıl çıkar:** sürüm `packages/core/package.json`'da elle artırılır ve `chore(core): release X.Y.Z` commit'i `main`'e push edilir; gerisini workflow yapar. Git tag'i, GitHub Release ve `CHANGELOG.md` oluşturulmaz. `.changeset/` ve `@changesets/cli` repoda durur ama bu akışa bağlı değildir.
 
-- App kimliği `RELEASE_APP_CLIENT_ID` (repo variable; `app-id` girdisi kullanımdan kalktı) ve özel anahtarı `RELEASE_APP_PRIVATE_KEY` (secret) olarak **sadece `npm` environment'ında** tutulur. Bu, paketin tek secret'ıdır ve npm yayınıyla ilgisi yoktur.
-- Version Packages commit'lerinin "Verified" olması için Changesets action'da `commitMode: github-api` kullanılır; commit'ler API üzerinden oluşturulduğu için GitHub tarafından imzalanır.
-- `environment: npm` üzerindeki manuel onay açılacaksa, onay her `main` push'unda (sadece PR güncellemesi için bile) istenir. Bu yüzden yayın ile PR güncellemesi iki ayrı job'a bölünebilir; MVP'de manuel onay kapalı tutulur.
+**Bilinen davranışlar:**
 
-```yaml
-name: release
-on:
-  push:
-    branches: [main]
-permissions: {}
-concurrency: release
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    environment: npm
-    permissions:
-      contents: write # tag ve release
-      id-token: write # npm trusted publishing (OIDC)
-    steps:
-      - uses: actions/create-github-app-token@<sha> # v2
-        id: app
-        with:
-          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@<sha> # v4
-        with: { token: "${{ steps.app.outputs.token }}" }
-      - uses: pnpm/action-setup@<sha> # v4
-      - uses: actions/setup-node@<sha> # v4
-        with: { node-version: 24, registry-url: "https://registry.npmjs.org" }
-        # Node 24 npm 11 ile gelir; trusted publishing için ≥ 11.5.1 yeterli,
-        # "npm install -g npm@latest" gibi pinlenmemiş kurulum yapılmaz
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter enflasyon-core build && pnpm --filter enflasyon-core test
-      - uses: changesets/action@<sha> # v1
-        with:
-          publish: pnpm changeset publish
-          commitMode: github-api
-        env:
-          GITHUB_TOKEN: ${{ steps.app.outputs.token }}
-```
-
-**Mevcut durum:** pnpm'in npm OIDC trusted publishing desteği doğrulanmadığı için `release.yml` yayını `packages/core` içinde `npm stage publish` ile yapar; sürüm npm'de zaten varsa adım atlanır. Trusted publisher yalnızca stage iznine sahiptir (npm varsayılanı ve önerisi): CI sürümü kuyruğa koyar, npmjs.com'da 2FA ile onaylanınca yayına çıkar. Onay bekleyen sürüm npm'de görünmediği için bu arada `main`'e yapılan push'lar onu yeniden stage etmeyi dener. `publishConfig.provenance` kullanılmaz: repo private iken provenance üretilemez, public olunca trusted publishing provenance'ı kendiliğinden ekler.
+- Onay bekleyen sürüm `npm view` ile görünmez. Bu yüzden onaylanana kadar `main`'e yapılan her push onu yeniden stage etmeye çalışır ve `release` job'u `E409` ("Cannot stage previously published version") ile kırmızı biter. Onaydan sonra adım atlanır ve job yeşile döner.
+- Yayın `pnpm publish` ile değil npm CLI ile yapılır: pnpm'in OIDC trusted publishing desteği doğrulanmadı. `npm stage` için npm ≥ 11.15 gerekir; Node 24 ile gelen sürüm yeterlidir, `npm install -g npm@latest` gibi pinlenmemiş kurulum yapılmaz.
+- `publishConfig.provenance` kullanılmaz: repo private iken provenance üretilemez, public olunca trusted publishing provenance'ı kendiliğinden ekler.
 
 **`security.yml`** — haftalık ve PR'da: CodeQL analizi + OpenSSF Scorecard.
 
 ### 10.1 Yayın öncesi kontrol listesi
 
 - [ ] `pnpm pack --dry-run` çıktısında sadece `dist/`, `README.md`, `LICENSE`, `package.json` var
-- [ ] npm sayfasında provenance rozeti görünüyor (ilk OIDC yayınından sonra)
+- [ ] npm sayfasında provenance rozeti görünüyor (repo public olduktan sonraki ilk yayında)
 - [ ] README'deki örnek kod, yayınlanan sürümle çalışıyor
-- [ ] CHANGELOG girişi anlamlı (changeset açıklaması kullanıcıya yönelik yazılmış)
+- [ ] npmjs.com'da stage edilen sürüm onaylandı ve `npm view enflasyon-core version` yeni sürümü gösteriyor
 
 ### 10.2 README içeriği
 
