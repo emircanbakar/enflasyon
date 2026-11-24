@@ -57,16 +57,6 @@ export default function PrivacyPage() {
       <h2>Ölçüm</h2>
       <ul>
         <li>
-          <strong>Ziyaret istatistikleri (Umami):</strong> çerez ve cihaz kimliği kullanmayan bir
-          araçla sayfa görüntülemeleri, sayfa hızı ölçümleri (ör. sayfanın ne kadar sürede
-          yüklendiği) ve şu olaylar sayılır: ilk sonucun görülmesi (yalnızca seçilen dönem tipi ve
-          TL ya da yüzde modu), linkin kopyalanması, paylaşım ve story kartı. Gönderilen sayfa
-          adreslerinden <code>?</code> ve <code>#</code> sonrası silinir; yani harcama dağılımın ve
-          tutarların istatistiklere hiç girmez. Umami IP adresini saklamaz; yalnızca ülke düzeyinde
-          konum ve her gün değişen anonim bir oturum özeti için anlık olarak kullanır. Tarayıcında
-          &quot;Do Not Track&quot; açıksa hiç ölçüm yapılmaz.
-        </li>
-        <li>
           <strong>Hata kayıtları (Sentry):</strong> yalnızca sayfada bir hata oluştuğunda hata
           mesajı, kodun hangi satırda bozulduğu ve tarayıcı türü gönderilir. Adreslerin{" "}
           <code>?</code> ve <code>#</code> sonrası, çerezler ve önceki sayfa bilgisi silinir; IP
