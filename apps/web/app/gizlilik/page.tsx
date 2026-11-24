@@ -55,15 +55,8 @@ export default function PrivacyPage() {
       </ul>
 
       <h2>Ölçüm</h2>
-      <ul>
-        <li>
-          <strong>Hata kayıtları (Sentry):</strong> yalnızca sayfada bir hata oluştuğunda hata
-          mesajı, kodun hangi satırda bozulduğu ve tarayıcı türü gönderilir. Adreslerin{" "}
-          <code>?</code> ve <code>#</code> sonrası, çerezler ve önceki sayfa bilgisi silinir; IP
-          adresi saklanmaz. Hata olmayan ziyaretlerde bu araç hiç yüklenmez.
-        </li>
-      </ul>
-      <p>Sayfada reklam, sosyal medya eklentisi veya izleme amaçlı başka bir script yoktur.</p>
+      <p>Ziyaret istatistiği ya da hata kaydı toplanmaz.</p>
+      <p>Sayfada reklam, sosyal medya eklentisi veya izleme amaçlı bir script yoktur.</p>
 
       <h2>İletişim</h2>
       <p>
